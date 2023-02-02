@@ -62,7 +62,7 @@ params = AttrDict(
     max_energy_override=4.,
 
     # Model params
-    residual_layers=10,
+    residual_layers=3,
     residual_channels=32,
     dilation_cycle_length=10,
     noise_schedule=np.linspace(1e-4, 0.05, 50).tolist(), # [beta_start, beta_end, num_diffusion_step]
