@@ -39,7 +39,7 @@ def check_speed(config):
     end = torch.cuda.Event(enable_timing=True)
 
     start.record()
-    model(audio, spectrogram, torch.tensor(1.0).cuda())
+    model(audio, spectrogram, torch.tensor(2.0).cuda())
     end.record()
 
     torch.cuda.synchronize()
