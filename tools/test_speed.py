@@ -29,6 +29,7 @@ def check_speed(config):
 
     audio = torch.FloatTensor(audio)
     spectrogram = get_mel(audio, params)
+    print(audio.shape)
     print(spectrogram.shape)
 
     # model inference
