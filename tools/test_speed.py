@@ -27,15 +27,15 @@ def check_speed(config):
     if (audio.shape[0] % params.hop_samples) != 0:
         audio = audio[:-(audio.shape[0] % params.hop_samples)]
 
-    audio = torch.FloatTensor(audio)
+    audio = torch.FloatTensor(audio, device=torch.device("cuda"))
     spectrogram = get_mel(audio, params)
-    
+
     audio = audio.unsqueeze(0)
     print(audio.shape)
     print(spectrogram.shape)
 
     # model inference
-    model(audio, spectrogram, torch.tensor(1.0))
+    model(audio, spectrogram, torch.tensor(1.0, device=torch.device("cuda")))
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='train (or resume training) a PriorGrad model')
