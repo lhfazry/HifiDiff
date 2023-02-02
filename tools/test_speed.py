@@ -43,7 +43,7 @@ def check_speed(config):
     end.record()
 
     torch.cuda.synchronize()
-    print(start.elapsed_time(end))
+    print(f"time: {start.elapsed_time(end)}\n\n")
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='train (or resume training) a PriorGrad model')
