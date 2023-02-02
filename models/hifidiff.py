@@ -55,7 +55,7 @@ class TimeAware_LVCBlock(torch.nn.Module):
                  in_channels,
                  cond_channels,
                  #upsample_ratio,
-                 conv_layers=4,
+                 conv_layers=5,
                  conv_kernel_size=3,
                  cond_hop_length=256,
                  kpnet_hidden_channels=64,
@@ -291,51 +291,6 @@ class DiffusionEmbedding(nn.Module):
         table = steps * 10.0 ** (dims * 4.0 / 63.0)  # [T,64]
         table = torch.cat([torch.sin(table), torch.cos(table)], dim=1)
         return table
-
-
-class SpectrogramUpsampler(nn.Module):
-    def __init__(self, n_mels):
-        super().__init__()
-        self.conv1 = ConvTranspose2d(1, 1, [3, 32], stride=[1, 16], padding=[1, 8])
-        self.conv2 = ConvTranspose2d(1, 1, [3, 32], stride=[1, 16], padding=[1, 8])
-
-    def forward(self, x):
-        x = torch.unsqueeze(x, 1)
-        x = self.conv1(x)
-        x = F.leaky_relu(x, 0.4)
-        x = self.conv2(x)
-        x = F.leaky_relu(x, 0.4)
-        x = torch.squeeze(x, 1)
-        return x
-
-
-class ResidualBlock(nn.Module):
-    def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
-        super().__init__()
-        self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
-        self.diffusion_projection = Linear(512, residual_channels)
-        self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
-
-        if n_cond_global is not None:
-            self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
-        self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
-
-    def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
-        diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
-        conditioner = self.conditioner_projection(conditioner)
-
-        y = x + diffusion_step
-        y = self.dilated_conv(y) + conditioner
-
-        if conditioner_global is not None:
-            y = y + self.conditioner_projection_global(conditioner_global)
-
-        gate, filter = torch.chunk(y, 2, dim=1)
-        y = torch.sigmoid(gate) * torch.tanh(filter)
-
-        y = self.output_projection(y)
-        residual, skip = torch.chunk(y, 2, dim=1)
-        return (x + residual) / sqrt(2.0), skip
 
 
 class HifiDiff(nn.Module):
