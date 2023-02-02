@@ -1,5 +1,6 @@
 import sys
 import importlib
+import torch
 from argparse import ArgumentParser
 from models.diffwave import DiffWave
 from models.hifidiff import HifiDiff
@@ -13,15 +14,15 @@ def check_speed(config):
     print(config.replace('/', '.').replace('.py', ''))
     params = importlib.import_module(config.replace('/', '.').replace('.py', '')).params
 
-    print(params)
     if params.model == 1:
         model = DiffWave(params)#.cuda()
     elif params.model == 2:
         model = HifiDiff(params=params)#.cuda()
 
     sr, audio = read('/workspace/LJSpeech-1.1/wavs/LJ001-0001.wav')
+    spectrogram = get_mel(audio, params)
     # model inference
-    model(audio, spectrogram, diffusion_step)
+    model(audio, spectrogram, torch.tensor(1.0))
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='train (or resume training) a PriorGrad model')
