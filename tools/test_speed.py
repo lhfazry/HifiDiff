@@ -31,11 +31,19 @@ def check_speed(config):
     spectrogram = get_mel(audio, params)
 
     audio = audio.unsqueeze(0)
-    print(audio.shape)
-    print(spectrogram.shape)
+    #print(audio.shape)
+    #print(spectrogram.shape)
 
     # model inference
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+
+    start.record()
     model(audio, spectrogram, torch.tensor(1.0).cuda())
+    end.record()
+
+    torch.cuda.synchronize()
+    print(start.elapsed_time(end))
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='train (or resume training) a PriorGrad model')
