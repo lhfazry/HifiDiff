@@ -20,7 +20,16 @@ def check_speed(config):
         model = HifiDiff(params=params).cuda()
 
     sr, audio = read('/workspace/LJSpeech-1.1/wavs/LJ001-0001.wav')
+    audio = audio / MAX_WAV_VALUE
+    audio = normalize(audio) * 0.95
+
+    # match audio length to self.hop_size * n for evaluation
+    if (audio.shape[0] % params.hop_samples) != 0:
+        audio = audio[:-(audio.shape[0] % params.hop_samples)]
+
+    audio = torch.FloatTensor(audio)
     spectrogram = get_mel(audio, params)
+    
     # model inference
     model(audio, spectrogram, torch.tensor(1.0))
 
