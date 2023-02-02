@@ -127,7 +127,7 @@ class TimeAware_LVCBlock(torch.nn.Module):
 
             k = kernels[:, i, :, :, :, :]
             b = bias[:, i, :, :]
-            y = self.location_variable_convolution(y, k, b, dilation, self.cond_hop_length)
+            y = self.location_variable_convolution(x, k, b, dilation, self.cond_hop_length)
 
             gate, filter = torch.chunk(y, 2, dim=1)
             #x = x + torch.sigmoid(y[:, :in_channels, :]) * torch.tanh(y[:, in_channels:, :])
