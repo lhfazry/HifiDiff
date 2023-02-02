@@ -294,13 +294,7 @@ class DiffusionEmbedding(nn.Module):
 
 
 class HifiDiff(nn.Module):
-    def __init__(self, 
-                lvc_layers_each_block=4,
-                lvc_kernel_size=3,
-                kpnet_hidden_channels=64,
-                kpnet_conv_size=3,
-                dropout=0.0,
-                params=None):
+    def __init__(self, params=None):
         super().__init__()
         self.params = params
         self.use_prior = params.use_prior
@@ -347,12 +341,12 @@ class HifiDiff(nn.Module):
                 in_channels=inner_channels,
                 cond_channels=cond_channels,
                 #upsample_ratio=upsample_ratios[i],
-                conv_layers=lvc_layers_each_block,
-                conv_kernel_size=lvc_kernel_size,
+                conv_layers=params.lvc_layers_each_block,
+                conv_kernel_size=params.lvc_kernel_size,
                 cond_hop_length=cond_hop_length,
-                kpnet_hidden_channels=kpnet_hidden_channels,
-                kpnet_conv_size=kpnet_conv_size,
-                kpnet_dropout=dropout,
+                kpnet_hidden_channels=params.kpnet_hidden_channels,
+                kpnet_conv_size=params.kpnet_conv_size,
+                kpnet_dropout=params.kpnet_dropout,
                 #noise_scale_embed_dim_out=diffusion_step_embed_dim_out
             )
 

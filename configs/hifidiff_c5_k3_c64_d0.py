@@ -71,6 +71,10 @@ params = AttrDict(
 
     model=2, #HifiDiff
 
-    # hidiff
-    conv_layers=5,
+    # HifiDiff
+    lvc_layers_each_block=5,
+    lvc_kernel_size=3,
+    kpnet_hidden_channels=64,
+    kpnet_conv_size=3,
+    kpnet_dropout=0.0,
 )
