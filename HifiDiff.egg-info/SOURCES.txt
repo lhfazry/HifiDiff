@@ -1,0 +1,11 @@
+LICENSE.txt
+NOTICE.md
+README.md
+setup.py
+HifiDiff.egg-info/PKG-INFO
+HifiDiff.egg-info/SOURCES.txt
+HifiDiff.egg-info/dependency_links.txt
+HifiDiff.egg-info/top_level.txt
+models/__init__.py
+models/diffwave.py
+models/hifidiff.py
