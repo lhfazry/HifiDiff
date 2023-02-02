@@ -39,8 +39,10 @@ def check_speed(config):
     end = torch.cuda.Event(enable_timing=True)
 
     start.record()
-    model(audio, spectrogram, torch.tensor(1.0).cuda())
+    noise = model(audio, spectrogram, torch.tensor(1.0).cuda())
     end.record()
+
+    print(f"result noise shape: {noise.shape}")
 
     torch.cuda.synchronize()
     print(f"time: {start.elapsed_time(end)}\n\n")
