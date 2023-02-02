@@ -295,7 +295,6 @@ class DiffusionEmbedding(nn.Module):
 
 class HifiDiff(nn.Module):
     def __init__(self, 
-                audio_channels=1,
                 lvc_layers_each_block=4,
                 lvc_kernel_size=3,
                 kpnet_hidden_channels=64,
