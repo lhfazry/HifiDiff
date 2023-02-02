@@ -4,3 +4,24 @@ CUDA_VISIBLE_DEVICES=5 python __main__.py \
     checkpoints/hifidiff_c5_k3_c64_d0 \
     /workspace/LJSpeech-1.1 \
     filelists/train.txt >> logs/hifidiff_c5_k3_c64_d0.log 2>&1 &
+
+2. hifidiff_c10_k3_c64_d0
+CUDA_VISIBLE_DEVICES=5 python __main__.py \
+    configs/hifidiff_c10_k3_c64_d0.py \
+    checkpoints/hifidiff_c10_k3_c64_d0 \
+    /workspace/LJSpeech-1.1 \
+    filelists/train.txt >> logs/hifidiff_c10_k3_c64_d0.log 2>&1 &
+
+3. hifidiff_c5_k3_c128_d0
+CUDA_VISIBLE_DEVICES=6 python __main__.py \
+    configs/hifidiff_c5_k3_c128_d0.py \
+    checkpoints/hifidiff_c5_k3_c128_d0 \
+    /workspace/LJSpeech-1.1 \
+    filelists/train.txt >> logs/hifidiff_c5_k3_c128_d0.log 2>&1 &
+
+4. hifidiff_c5_k3_c64_d2
+CUDA_VISIBLE_DEVICES=6 python __main__.py \
+    configs/hifidiff_c5_k3_c64_d2.py \
+    checkpoints/hifidiff_c5_k3_c64_d2 \
+    /workspace/LJSpeech-1.1 \
+    filelists/train.txt >> logs/hifidiff_c5_k3_c64_d2.log 2>&1 &

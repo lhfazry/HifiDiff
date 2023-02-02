@@ -40,6 +40,8 @@ from argparse import ArgumentParser
 
 from models.diffwave import DiffWave
 from learner import _nested_map
+from models.diffwave import DiffWave
+from models.hifidiff import HifiDiff
 
 device = torch.device("cuda")
 
@@ -146,7 +148,13 @@ def main(args):
             T_OVERRIDE = len(params.inference_noise_schedule)
 
     dataset_test = dataset_from_path_valid(args.data_root, args.filelist, params)
-    model = DiffWave(params)
+
+    if params.model == 1:
+        model = DiffWave(params)
+    elif params.model == 2:
+        model = HifiDiff(params)
+
+    #model = DiffWave(params)
 
     model, step = restore_from_checkpoint(model, args.model_dir, args.step)
     model = model.to(device)
