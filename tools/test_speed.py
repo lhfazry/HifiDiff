@@ -27,8 +27,10 @@ def check_speed(config):
     if (audio.shape[0] % params.hop_samples) != 0:
         audio = audio[:-(audio.shape[0] % params.hop_samples)]
 
-    audio = torch.FloatTensor(audio).unsqueeze(0)
+    audio = torch.FloatTensor(audio)
     spectrogram = get_mel(audio, params)
+    
+    audio = audio.unsqueeze(0)
     print(audio.shape)
     print(spectrogram.shape)
 
