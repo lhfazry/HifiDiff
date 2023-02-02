@@ -51,7 +51,7 @@ def main(args):
   if not os.path.exists(args.config):
     raise FileNotFoundError(f'Config file {args.config} is not exists.')
 
-  params = importlib.import_module('params', args.config.replace('/', '.'))
+  params = importlib.import_module(args.config.replace('/', '.').replace('.py', '')).params
 
   os.makedirs(args.model_dir, exist_ok=True)
   shutil.copy(args.config, os.path.join(args.model_dir, 'params_saved.py'))

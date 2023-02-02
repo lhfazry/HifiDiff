@@ -60,7 +60,6 @@ def scaled_mse_loss(decoder_output, target, target_std):
     mse_loss = (mse_loss).sum() / torch.numel(decoder_output)
     return mse_loss
 
-
 class PriorGradLearner:
     def __init__(self, model_dir, model, dataset, dataset_val, optimizer, params, *args, **kwargs):
         os.makedirs(model_dir, exist_ok=True)
