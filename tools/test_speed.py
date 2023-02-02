@@ -15,9 +15,9 @@ def check_speed(config):
     params = importlib.import_module(config.replace('/', '.').replace('.py', '')).params
 
     if params.model == 1:
-        model = DiffWave(params)#.cuda()
+        model = DiffWave(params).cuda()
     elif params.model == 2:
-        model = HifiDiff(params=params)#.cuda()
+        model = HifiDiff(params=params).cuda()
 
     sr, audio = read('/workspace/LJSpeech-1.1/wavs/LJ001-0001.wav')
     spectrogram = get_mel(audio, params)
