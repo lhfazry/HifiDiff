@@ -1,0 +1,6 @@
+1. hifidiff_c5_k3_c64_d0
+CUDA_VISIBLE_DEVICES=5 python __main__.py \
+    configs/hifidiff_c5_k3_c64_d0.py \
+    checkpoints/hifidiff_c5_k3_c64_d0 \
+    /workspace/LJSpeech-1.1 \
+    filelists/train.txt >> logs/hifidiff_c5_k3_c64_d0.log 2>&1 &
