@@ -40,6 +40,10 @@ def check_speed(config):
     #print(audio.shape)
     #print(spectrogram.shape)
 
+    #GPU-WARM-UP
+    for _ in range(10):
+        _ = model(audio, spectrogram, torch.tensor(1.0).cuda())
+
     # model inference
     start = torch.cuda.Event(enable_timing=True)
     end = torch.cuda.Event(enable_timing=True)
