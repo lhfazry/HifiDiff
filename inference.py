@@ -43,6 +43,7 @@ from learner import _nested_map
 from models.diffwave import DiffWave
 from models.hifidiff import HifiDiff
 from models.hifidiffv2 import HifiDiffV2
+from models.hifidiffv3 import HifiDiffV3
 
 device = torch.device("cuda")
 
@@ -156,6 +157,8 @@ def main(args):
         model = HifiDiff(params)
     elif params.model == 3:
         model = HifiDiffV2(params)
+    elif params.model == 4:
+        model = HifiDiffV3(params)
 
     #model = DiffWave(params)
 
