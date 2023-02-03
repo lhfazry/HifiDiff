@@ -4,6 +4,7 @@ import torch
 from argparse import ArgumentParser
 from models.diffwave import DiffWave
 from models.hifidiff import HifiDiff
+from models.hifidiffv2 import HifiDiffV2
 from scipy.io.wavfile import read
 from preprocess import MAX_WAV_VALUE, get_mel, normalize
 
@@ -18,6 +19,8 @@ def check_speed(config):
         model = DiffWave(params).cuda()
     elif params.model == 2:
         model = HifiDiff(params=params).cuda()
+    elif params.model == 3:
+        model = HifiDiffV2(params=params).cuda()
 
     sr, audio = read('/workspace/LJSpeech-1.1/wavs/LJ001-0001.wav')
     audio = audio / MAX_WAV_VALUE
