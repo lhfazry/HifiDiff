@@ -108,6 +108,10 @@ def predict(model, spectrogram, target_std, global_cond=None, fast_sampling=True
                             device=device) * target_std
         noise_scale = torch.from_numpy(alpha_cum ** 0.5).float().unsqueeze(1).to(device)
 
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
+
         for n in range(len(alpha) - 1, -1, -1):
             c1 = 1 / alpha[n] ** 0.5
             c2 = beta[n] / (1 - alpha_cum[n]) ** 0.5
@@ -119,7 +123,10 @@ def predict(model, spectrogram, target_std, global_cond=None, fast_sampling=True
                 audio += sigma * noise
             audio = torch.clamp(audio, -1.0, 1.0)
 
-        return audio
+        end.record()
+        torch.cuda.synchronize()
+
+        return audio, start.elapsed_time(end)
 
 
 def main(args):
@@ -194,17 +201,10 @@ def main(args):
                 global_cond = target_std_specdim
             else:
                 global_cond = None
-                
-        start = torch.cuda.Event(enable_timing=True)
-        end = torch.cuda.Event(enable_timing=True)
-        start.record()
 
-        audio = predict(model, spectrogram, target_std, global_cond=global_cond, fast_sampling=args.fast)
+        audio, predict_time = predict(model, spectrogram, target_std, global_cond=global_cond, fast_sampling=args.fast)
+        total_time += predict_time
         
-        end.record()
-        torch.cuda.synchronize()
-        total_time += start.elapsed_time(end)
-
         #sample_name = "{:04d}.wav".format(i + 1)
         sample_name = Path(features['filename'][0]).name
         torchaudio.save(os.path.join(sample_path, sample_name), audio.cpu(), sample_rate=model.params.sample_rate)
