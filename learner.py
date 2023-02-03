@@ -132,7 +132,7 @@ class PriorGradLearner:
         except FileNotFoundError:
             return False
 
-    def train(self, max_steps=None):
+    def train(self, max_steps=None, validate_loop=10000, save_ckpt_loop=50000):
         device = next(self.model.parameters()).device
         while True:
             for features in tqdm(self.dataset,
@@ -146,9 +146,9 @@ class PriorGradLearner:
                 if self.is_master:
                     if self.step % 50 == 0:
                         self._write_summary(self.step, features, loss)
-                    if self.step % 10000 == 0:
+                    if self.step % validate_loop == 0:
                         self.run_valid_loop()
-                    if self.step % 50000 == 0:
+                    if self.step % save_ckpt_loop == 0:
                         print("INFO: saving checkpoint at step {}".format(self.step))
                         self.save_to_checkpoint()
                 self.step += 1

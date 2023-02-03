@@ -80,6 +80,10 @@ if __name__ == '__main__':
            'example: for LJSpeech, refer to ./filelists/train.txt')
   parser.add_argument('--max_steps', default=None, type=int,
       help='maximum number of training steps')
+  parser.add_argument('--validate_loop', default=10000, type=int,
+      help='maximum number of training steps')
+  parser.add_argument('--save_ckpt_loop', default=50000, type=int,
+      help='maximum number of training steps')
   parser.add_argument('--fp16', action='store_true', default=False,
       help='use 16-bit floating point operations for training')
   main(parser.parse_args())

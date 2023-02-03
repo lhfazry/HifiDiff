@@ -1,3 +1,14 @@
+0. diffwave
+CUDA_VISIBLE_DEVICES=5 python __main__.py \
+    configs/diffwave.py \
+    checkpoints/diffwave \
+    /workspace/LJSpeech-1.1 \
+    filelists/train.txt \
+    --max_steps 5000 --validate_loop 500 --save_ckpt_loop 5000 >> logs/diffwave.log 2>&1 &
+
+CUDA_VISIBLE_DEVICES=7 python inference.py checkpoints/diffwave /workspace/LJSpeech-1.1 filelists/test.txt --step 5000 --fast_iter 50 >> logs/inferences/diffwave.log 2>&1 &
+
+python tools/evaluate.py --sdir=checkpoints/sample_slow/diffwave_step5000 --odir=/workspace/LJSpeech-1.1/wavs
 
 1. hifidiff_c5_k3_c64_d0
 CUDA_VISIBLE_DEVICES=5 python __main__.py \
