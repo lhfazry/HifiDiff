@@ -175,10 +175,7 @@ def main(args):
         sample_path = os.path.join(dir_parent, 'sample_slow', dir_base + '_step{}'.format(step))
 
     os.makedirs(sample_path, exist_ok=True)
-
-    start = torch.cuda.Event(enable_timing=True)
-    end = torch.cuda.Event(enable_timing=True)
-    start.record()
+    total_time = 0
 
     # do test set inference for given checkpoint and exit
     for i, features in tqdm(enumerate(dataset_test)):
@@ -197,16 +194,21 @@ def main(args):
                 global_cond = target_std_specdim
             else:
                 global_cond = None
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
 
         audio = predict(model, spectrogram, target_std, global_cond=global_cond, fast_sampling=args.fast)
+        
+        end.record()
+        torch.cuda.synchronize()
+        total_time += start.elapsed_time(end)
+
         #sample_name = "{:04d}.wav".format(i + 1)
         sample_name = Path(features['filename'][0]).name
         torchaudio.save(os.path.join(sample_path, sample_name), audio.cpu(), sample_rate=model.params.sample_rate)
     
-    end.record()
-
-    torch.cuda.synchronize()
-    print(f"time: {start.elapsed_time(end) / len(dataset_test)}\n\n")
+    print(f"time: {total_time / len(dataset_test)}\n\n")
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='runs inference from the test set filelist')
