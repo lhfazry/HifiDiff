@@ -194,6 +194,7 @@ def main(args):
                 global_cond = target_std_specdim
             else:
                 global_cond = None
+                
         start = torch.cuda.Event(enable_timing=True)
         end = torch.cuda.Event(enable_timing=True)
         start.record()
