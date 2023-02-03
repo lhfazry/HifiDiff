@@ -173,6 +173,10 @@ def main(args):
 
     os.makedirs(sample_path, exist_ok=True)
 
+    start = torch.cuda.Event(enable_timing=True)
+    end = torch.cuda.Event(enable_timing=True)
+    start.record()
+
     # do test set inference for given checkpoint and exit
     for i, features in tqdm(enumerate(dataset_test)):
         features = _nested_map(features, lambda x: x.to(device) if isinstance(x, torch.Tensor) else x)
@@ -195,6 +199,11 @@ def main(args):
         #sample_name = "{:04d}.wav".format(i + 1)
         sample_name = Path(features['filename'][0]).name
         torchaudio.save(os.path.join(sample_path, sample_name), audio.cpu(), sample_rate=model.params.sample_rate)
+    
+    end.record()
+
+    torch.cuda.synchronize()
+    print(f"time: {start.elapsed_time(end) / len(dataset_test)}\n\n")
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='runs inference from the test set filelist')
