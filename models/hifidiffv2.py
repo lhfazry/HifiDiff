@@ -133,9 +133,9 @@ class TimeAware_LVCBlock(torch.nn.Module):
             #x = x + torch.sigmoid(y[:, :in_channels, :]) * torch.tanh(y[:, in_channels:, :])
             x = x + torch.sigmoid(gate) * torch.tanh(filter)
 
-        y = self.output_projection(x)
-        residual, skip = torch.chunk(y, 2, dim=1)
-        return (x + residual) / sqrt(2.0), skip
+        #y = self.output_projection(x)
+        #residual, skip = torch.chunk(y, 2, dim=1)
+        return x
         #return x
 
     def location_variable_convolution(self, x, kernel, bias, dilation, hop_size):
@@ -371,11 +371,11 @@ class HifiDiffV2(nn.Module):
 
         skip = []
         for layer in self.residual_layers:
-            x, skip_connection = layer(x, spectrogram, diffusion_step, global_cond)
-            skip.append(skip_connection)
+            x = layer(x, spectrogram, diffusion_step, global_cond)
+            #skip.append(skip_connection)
 
-        x = torch.sum(torch.stack(skip), dim=0) / sqrt(len(self.residual_layers))
-        x = self.skip_projection(x)
+        #x = torch.sum(torch.stack(skip), dim=0) / sqrt(len(self.residual_layers))
+        #x = self.skip_projection(x)
         x = F.relu(x)
         x = self.output_projection(x)
         return x

@@ -42,6 +42,7 @@ from dataset import from_path as dataset_from_path
 from dataset import from_path_valid as dataset_from_path_valid
 from models.diffwave import DiffWave
 from models.hifidiff import HifiDiff
+from models.hifidiffv2 import HifiDiffV2
 from preprocess import get_mel
 
 def _nested_map(struct, map_fn):
@@ -363,6 +364,8 @@ def train(args, params):
         model = DiffWave(params).cuda()
     elif params.model == 2:
         model = HifiDiff(params).cuda()
+    elif params.model == 3:
+        model = HifiDiffV2(params).cuda()
 
     _train_impl(0, model, dataset, dataset_val, args, params)
 
