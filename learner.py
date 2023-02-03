@@ -350,7 +350,9 @@ def _train_impl(replica_id, model, dataset, dataset_val, args, params):
     learner = PriorGradLearner(args.model_dir, model, dataset, dataset_val, opt, params, fp16=args.fp16)
     learner.is_master = (replica_id == 0)
     learner.restore_from_checkpoint()
-    learner.train(max_steps=args.max_steps)
+    learner.train(max_steps=args.max_steps, 
+        validate_loop=args.validate_loop, 
+        save_ckpt_loop=args.save_ckpt_loop)
 
 
 def train(args, params):
