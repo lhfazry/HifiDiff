@@ -153,14 +153,14 @@ class WaveGrad(nn.Module):
     super().__init__()
     self.params = params
     self.downsample = nn.ModuleList([
-        Conv1d(1, 1, 5, padding=2),
+        Conv1d(1, 32, 5, padding=2),
         DBlock(32, 128, 2),
         DBlock(128, 128, 2),
         DBlock(128, 256, 3),
         DBlock(256, 512, 5),
     ])
     self.film = nn.ModuleList([
-        FiLM(1, 128),
+        FiLM(32, 128),
         FiLM(128, 128),
         FiLM(128, 256),
         FiLM(256, 512),
