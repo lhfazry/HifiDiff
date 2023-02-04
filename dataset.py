@@ -36,7 +36,7 @@ from tqdm import tqdm
 from torch.utils.data.distributed import DistributedSampler
 from pathlib import Path
 from scipy.io.wavfile import read
-from preprocess import MAX_WAV_VALUE, get_mel, normalize
+from tools.preprocess import MAX_WAV_VALUE, get_mel, normalize
 
 device = torch.device("cuda")
 

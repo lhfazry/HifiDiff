@@ -40,11 +40,8 @@ from tqdm import tqdm
 
 from dataset import from_path as dataset_from_path
 from dataset import from_path_valid as dataset_from_path_valid
-from models.diffwave import DiffWave
-from models.hifidiff import HifiDiff
-from models.hifidiffv2 import HifiDiffV2
-from models.hifidiffv3 import HifiDiffV3
-from preprocess import get_mel
+from models.builder import build_model
+from tools.preprocess import get_mel
 
 def _nested_map(struct, map_fn):
     if isinstance(struct, tuple):
@@ -360,15 +357,8 @@ def _train_impl(replica_id, model, dataset, dataset_val, args, params):
 def train(args, params):
     dataset = dataset_from_path(args.data_root, args.filelist, params)
     dataset_val = dataset_from_path_valid(args.data_root, os.path.join(Path(args.filelist).parent, "valid.txt"), params)
-    
-    if params.model == 1:
-        model = DiffWave(params).cuda()
-    elif params.model == 2:
-        model = HifiDiff(params).cuda()
-    elif params.model == 3:
-        model = HifiDiffV2(params).cuda()
-    elif params.model == 4:
-        model = HifiDiffV3(params).cuda()
+
+    model = build_model(params).cuda()
 
     _train_impl(0, model, dataset, dataset_val, args, params)
 

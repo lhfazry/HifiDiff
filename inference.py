@@ -40,10 +40,7 @@ from argparse import ArgumentParser
 
 from models.diffwave import DiffWave
 from learner import _nested_map
-from models.diffwave import DiffWave
-from models.hifidiff import HifiDiff
-from models.hifidiffv2 import HifiDiffV2
-from models.hifidiffv3 import HifiDiffV3
+from models.builder import build_model
 
 device = torch.device("cuda")
 
@@ -158,16 +155,7 @@ def main(args):
 
     dataset_test = dataset_from_path_valid(args.data_root, args.filelist, params)
 
-    if params.model == 1:
-        model = DiffWave(params)
-    elif params.model == 2:
-        model = HifiDiff(params)
-    elif params.model == 3:
-        model = HifiDiffV2(params)
-    elif params.model == 4:
-        model = HifiDiffV3(params)
-
-    #model = DiffWave(params)
+    model = build_model(params)
 
     model, step = restore_from_checkpoint(model, args.model_dir, args.step)
     model = model.to(device)
@@ -204,7 +192,7 @@ def main(args):
 
         audio, predict_time = predict(model, spectrogram, target_std, global_cond=global_cond, fast_sampling=args.fast)
         total_time += predict_time
-        
+
         #sample_name = "{:04d}.wav".format(i + 1)
         sample_name = Path(features['filename'][0]).name
         torchaudio.save(os.path.join(sample_path, sample_name), audio.cpu(), sample_rate=model.params.sample_rate)
