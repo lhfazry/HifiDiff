@@ -178,7 +178,7 @@ class WaveGrad(nn.Module):
     self.last_conv = Conv1d(128, 1, 3, padding=1)
 
   def forward(self, audio, spectrogram, noise_scale):
-    noise_scale = self.noise_projection(noise_scale.unsqueeze(1))
+    noise_scale = self.noise_projection(noise_scale.unsqueeze(0))
     x = audio.unsqueeze(1)
     downsampled = []
     for film, layer in zip(self.film, self.downsample):
