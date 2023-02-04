@@ -16,6 +16,6 @@ def build_model(params):
     elif params.model == 99:
         model = WaveGrad(params)
 
-    assert model is None
+    #assert model is None
 
     return model
