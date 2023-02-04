@@ -174,8 +174,8 @@ class WaveGrad(nn.Module):
         UBlock(256, 128, 2, [1, 2, 4, 8]),
         UBlock(128, 128, 2, [1, 2, 4, 8]),
     ])
-    self.first_conv = Conv1d(128, 768, 3, padding=1)
-    self.last_conv = Conv1d(128, 1, 3, padding=1)
+    self.first_conv = Conv1d(80, 768, 3, padding=1)
+    self.last_conv = Conv1d(80, 1, 3, padding=1)
 
   def forward(self, audio, spectrogram, noise_scale):
     noise_scale = self.noise_projection(noise_scale.unsqueeze(0))
