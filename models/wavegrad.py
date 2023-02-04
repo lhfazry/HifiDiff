@@ -160,7 +160,7 @@ class WaveGrad(nn.Module):
         DBlock(256, 512, 5),
     ])
     self.film = nn.ModuleList([
-        FiLM(32, 128),
+        FiLM(1, 128),
         FiLM(128, 128),
         FiLM(128, 256),
         FiLM(256, 512),
