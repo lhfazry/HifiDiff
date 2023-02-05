@@ -48,7 +48,6 @@ def Conv1d(*args, **kwargs):
 def silu(x):
     return x * torch.sigmoid(x)
 
-
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
         super().__init__()
@@ -161,6 +160,8 @@ class DiffWave(nn.Module):
         nn.init.zeros_(self.output_projection.weight)
 
         print('num param: {}'.format(sum(p.numel() for p in self.parameters() if p.requires_grad)))
+        self.start = torch.cuda.Event(enable_timing=True)
+        self.end = torch.cuda.Event(enable_timing=True)
 
     def forward(self, audio, spectrogram, diffusion_step, global_cond=None):
         x = audio.unsqueeze(1)
@@ -168,13 +169,29 @@ class DiffWave(nn.Module):
         x = F.relu(x)
 
         diffusion_step = self.diffusion_embedding(diffusion_step)
+
+        
+        self.start.record()
+
         spectrogram = self.spectrogram_upsampler(spectrogram)
+
+        self.end.record()
+
+        torch.cuda.synchronize()
+        print(f"spectrogram_upsampler time: {self.start.elapsed_time(self.end)}\n\n")
+
+
         if global_cond is not None:
             global_cond = self.global_condition_upsampler(global_cond)
 
         skip = []
         for layer in self.residual_layers:
+            self.start.record()
             x, skip_connection = layer(x, spectrogram, diffusion_step, global_cond)
+            self.end.record()
+            torch.cuda.synchronize()
+            print(f"residual_layers time: {self.start.elapsed_time(self.end)}\n\n")
+
             skip.append(skip_connection)
 
         x = torch.sum(torch.stack(skip), dim=0) / sqrt(len(self.residual_layers))
