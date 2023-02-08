@@ -19,7 +19,7 @@ def main(args):
     sr = 22050
 
     for fname in os.listdir(args.sdir):
-        mcd, penalty = get_metrics_wavs(Path(os.path.join(args.sdir, fname)), 
+        mcd, penalty, _ = get_metrics_wavs(Path(os.path.join(args.sdir, fname)), 
             Path(os.path.join(args.odir, fname)))
 
         results += mcd
