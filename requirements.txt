@@ -4,3 +4,4 @@ tqdm
 librosa==0.8.1
 scipy
 tensorboard
+dc1d
