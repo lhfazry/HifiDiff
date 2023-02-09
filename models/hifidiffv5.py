@@ -37,6 +37,178 @@ from math import sqrt
 Linear = nn.Linear
 ConvTranspose2d = nn.ConvTranspose2d
 
+class CrossAttention(nn.Module):
+    r"""
+    A cross attention layer.
+    Parameters:
+        query_dim (`int`): The number of channels in the query.
+        cross_attention_dim (`int`, *optional*):
+            The number of channels in the encoder_hidden_states. If not given, defaults to `query_dim`.
+        heads (`int`,  *optional*, defaults to 8): The number of heads to use for multi-head attention.
+        dim_head (`int`,  *optional*, defaults to 64): The number of channels in each head.
+        dropout (`float`, *optional*, defaults to 0.0): The dropout probability to use.
+        bias (`bool`, *optional*, defaults to False):
+            Set to `True` for the query, key, and value linear layers to contain a bias parameter.
+    """
+
+    def __init__(
+        self,
+        query_dim: int,
+        cross_attention_dim: Optional[int] = None,
+        heads: int = 8,
+        dim_head: int = 64,
+        dropout: float = 0.0,
+        bias=False,
+        upcast_attention: bool = False,
+        upcast_softmax: bool = False,
+        added_kv_proj_dim: Optional[int] = None,
+        norm_num_groups: Optional[int] = None,
+        processor: Optional["AttnProcessor"] = None,
+    ):
+        super().__init__()
+        inner_dim = dim_head * heads
+        cross_attention_dim = cross_attention_dim if cross_attention_dim is not None else query_dim
+        self.upcast_attention = upcast_attention
+        self.upcast_softmax = upcast_softmax
+
+        self.scale = dim_head**-0.5
+
+        self.heads = heads
+        # for slice_size > 0 the attention score computation
+        # is split across the batch axis to save memory
+        # You can set slice_size with `set_attention_slice`
+        self.sliceable_head_dim = heads
+
+        self.added_kv_proj_dim = added_kv_proj_dim
+
+        if norm_num_groups is not None:
+            self.group_norm = nn.GroupNorm(num_channels=inner_dim, num_groups=norm_num_groups, eps=1e-5, affine=True)
+        else:
+            self.group_norm = None
+
+        self.to_q = nn.Linear(query_dim, inner_dim, bias=bias)
+        self.to_k = nn.Linear(cross_attention_dim, inner_dim, bias=bias)
+        self.to_v = nn.Linear(cross_attention_dim, inner_dim, bias=bias)
+
+        if self.added_kv_proj_dim is not None:
+            self.add_k_proj = nn.Linear(added_kv_proj_dim, cross_attention_dim)
+            self.add_v_proj = nn.Linear(added_kv_proj_dim, cross_attention_dim)
+
+        self.to_out = nn.ModuleList([])
+        self.to_out.append(nn.Linear(inner_dim, query_dim))
+        self.to_out.append(nn.Dropout(dropout))
+
+        # set attention processor
+        processor = processor if processor is not None else CrossAttnProcessor()
+        self.set_processor(processor)
+
+    def set_attention_slice(self, slice_size):
+        if slice_size is not None and slice_size > self.sliceable_head_dim:
+            raise ValueError(f"slice_size {slice_size} has to be smaller or equal to {self.sliceable_head_dim}.")
+        '''
+        if slice_size is not None and self.added_kv_proj_dim is not None:
+            processor = SlicedAttnAddedKVProcessor(slice_size)
+        elif slice_size is not None:
+            processor = SlicedAttnProcessor(slice_size)
+        elif self.added_kv_proj_dim is not None:
+            processor = CrossAttnAddedKVProcessor()
+        else:
+        '''
+        processor = CrossAttnProcessor()
+
+        self.set_processor(processor)
+
+    def set_processor(self, processor: "AttnProcessor"):
+        self.processor = processor
+
+    def forward(self, hidden_states, encoder_hidden_states=None, attention_mask=None, **cross_attention_kwargs):
+        # The `CrossAttention` class can call different attention processors / attention functions
+        # here we simply pass along all tensors to the selected processor class
+        # For standard processors that are defined here, `**cross_attention_kwargs` is empty
+        return self.processor(
+            self,
+            hidden_states,
+            encoder_hidden_states=encoder_hidden_states,
+            attention_mask=attention_mask,
+            **cross_attention_kwargs,
+        )
+
+    def batch_to_head_dim(self, tensor):
+        head_size = self.heads
+        batch_size, seq_len, dim = tensor.shape
+        tensor = tensor.reshape(batch_size // head_size, head_size, seq_len, dim)
+        tensor = tensor.permute(0, 2, 1, 3).reshape(batch_size // head_size, seq_len, dim * head_size)
+        return tensor
+
+    def head_to_batch_dim(self, tensor):
+        head_size = self.heads
+        batch_size, seq_len, dim = tensor.shape
+        tensor = tensor.reshape(batch_size, seq_len, head_size, dim // head_size)
+        tensor = tensor.permute(0, 2, 1, 3).reshape(batch_size * head_size, seq_len, dim // head_size)
+        return tensor
+
+    def get_attention_scores(self, query, key, attention_mask=None):
+        dtype = query.dtype
+        if self.upcast_attention:
+            query = query.float()
+            key = key.float()
+
+        attention_scores = torch.baddbmm(
+            torch.empty(query.shape[0], query.shape[1], key.shape[1], dtype=query.dtype, device=query.device),
+            query,
+            key.transpose(-1, -2),
+            beta=0,
+            alpha=self.scale,
+        )
+
+        if attention_mask is not None:
+            attention_scores = attention_scores + attention_mask
+
+        if self.upcast_softmax:
+            attention_scores = attention_scores.float()
+
+        attention_probs = attention_scores.softmax(dim=-1)
+        attention_probs = attention_probs.to(dtype)
+
+        return attention_probs
+
+    def prepare_attention_mask(self, attention_mask, target_length):
+        head_size = self.heads
+        if attention_mask is None:
+            return attention_mask
+
+        if attention_mask.shape[-1] != target_length:
+            attention_mask = F.pad(attention_mask, (0, target_length), value=0.0)
+            attention_mask = attention_mask.repeat_interleave(head_size, dim=0)
+        return attention_mask
+
+
+class CrossAttnProcessor:
+    def __call__(self, attn: CrossAttention, hidden_states, encoder_hidden_states=None, attention_mask=None):
+        # hidden_states ==> main sequence
+        # encoder_hidden_states ==> conditioner
+        batch_size, sequence_length, _ = hidden_states.shape
+        attention_mask = attn.prepare_attention_mask(attention_mask, sequence_length)
+
+        query = attn.to_q(hidden_states)
+        query = attn.head_to_batch_dim(query)
+
+        encoder_hidden_states = encoder_hidden_states if encoder_hidden_states is not None else hidden_states
+        key = attn.to_k(encoder_hidden_states)
+        value = attn.to_v(encoder_hidden_states)
+        key = attn.head_to_batch_dim(key)
+        value = attn.head_to_batch_dim(value)
+
+        attention_probs = attn.get_attention_scores(query, key, attention_mask)
+        hidden_states = torch.bmm(attention_probs, value)
+        hidden_states = attn.batch_to_head_dim(hidden_states)
+
+        # linear proj
+        hidden_states = attn.to_out[0](hidden_states)
+        # dropout
+        hidden_states = attn.to_out[1](hidden_states)
+
+        return hidden_states
 
 def Conv1d(*args, **kwargs):
     layer = nn.Conv1d(*args, **kwargs)
@@ -101,6 +273,12 @@ class ResidualBlock(nn.Module):
     def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
         super().__init__()
         self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
+        self.cross_attention = CrossAttention(
+            query_dim = 2 * residual_channels,
+            heads = 8,
+            dim_head = 64,
+            bias=False)
+
         self.diffusion_projection = Linear(512, residual_channels)
         self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
         if n_cond_global is not None:
@@ -112,10 +290,10 @@ class ResidualBlock(nn.Module):
         conditioner = self.conditioner_projection(conditioner)
 
         y = x + diffusion_step
-        y = self.dilated_conv(y) + conditioner
-
-        if conditioner_global is not None:
-            y = y + self.conditioner_projection_global(conditioner_global)
+        #y = self.dilated_conv(y) + conditioner
+        y = self.cross_attention(self.dilated_conv(y), conditioner)
+        #if conditioner_global is not None:
+        #    y = y + self.conditioner_projection_global(conditioner_global)
 
         gate, filter = torch.chunk(y, 2, dim=1)
         y = torch.sigmoid(gate) * torch.tanh(filter)
@@ -147,7 +325,7 @@ class HifiDiffV5(nn.Module):
 
         self.input_projection = Conv1d(1, params.residual_channels, 1)
         self.diffusion_embedding = DiffusionEmbedding(len(params.noise_schedule))
-        self.spectrogram_upsampler = SpectrogramUpsampler(self.n_mels)
+        #self.spectrogram_upsampler = SpectrogramUpsampler(self.n_mels)
         if self.condition_prior_global:
             self.global_condition_upsampler = SpectrogramUpsampler(self.n_cond)
         self.residual_layers = nn.ModuleList([
@@ -170,26 +348,14 @@ class HifiDiffV5(nn.Module):
 
         diffusion_step = self.diffusion_embedding(diffusion_step)
         
-        #self.start.record()
-
-        spectrogram = self.spectrogram_upsampler(spectrogram)
-
-        #self.end.record()
-
-        #torch.cuda.synchronize()
-        #print(f"spectrogram_upsampler time: {self.start.elapsed_time(self.end)}\n\n")
+        #spectrogram = self.spectrogram_upsampler(spectrogram)
 
         if global_cond is not None:
             global_cond = self.global_condition_upsampler(global_cond)
 
         skip = []
         for layer in self.residual_layers:
-            #self.start.record()
             x, skip_connection = layer(x, spectrogram, diffusion_step, global_cond)
-            #self.end.record()
-            #torch.cuda.synchronize()
-            #print(f"residual_layers time: {self.start.elapsed_time(self.end)}\n\n")
-
             skip.append(skip_connection)
 
         x = torch.sum(torch.stack(skip), dim=0) / sqrt(len(self.residual_layers))
