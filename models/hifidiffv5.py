@@ -279,13 +279,13 @@ class ResidualBlock(nn.Module):
         self.cross_attention = CrossAttention(
             query_dim = 2 * residual_channels,
             heads = 8,
-            dim_head = 16,
+            dim_head = 64,
             bias=False)
 
         self.diffusion_projection = Linear(512, residual_channels)
         self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
-        if n_cond_global is not None:
-            self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
+        #if n_cond_global is not None:
+        #    self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
         self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
 
     def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
