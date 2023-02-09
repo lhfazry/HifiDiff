@@ -31,6 +31,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from typing import Optional
 
 from math import sqrt
 
@@ -54,15 +55,15 @@ class CrossAttention(nn.Module):
     def __init__(
         self,
         query_dim: int,
-        cross_attention_dim: Optional[int] = None,
+        cross_attention_dim: int = None,
         heads: int = 8,
         dim_head: int = 64,
         dropout: float = 0.0,
         bias=False,
         upcast_attention: bool = False,
         upcast_softmax: bool = False,
-        added_kv_proj_dim: Optional[int] = None,
-        norm_num_groups: Optional[int] = None,
+        added_kv_proj_dim: int = None,
+        norm_num_groups: int = None,
         processor: Optional["AttnProcessor"] = None,
     ):
         super().__init__()
