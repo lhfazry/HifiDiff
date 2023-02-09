@@ -188,8 +188,8 @@ class CrossAttnProcessor:
     def __call__(self, attn: CrossAttention, hidden_states, encoder_hidden_states=None, attention_mask=None):
         # hidden_states ==> main sequence
         # encoder_hidden_states ==> conditioner
-        print(f"hidden_states: {hidden_states.shape}")
-        print(f"encoder_hidden_states: {encoder_hidden_states.shape}")
+        #print(f"hidden_states: {hidden_states.shape}")
+        #print(f"encoder_hidden_states: {encoder_hidden_states.shape}")
         batch_size, sequence_length, _ = hidden_states.shape
         attention_mask = attn.prepare_attention_mask(attention_mask, sequence_length)
 
@@ -294,7 +294,11 @@ class ResidualBlock(nn.Module):
 
         y = x + diffusion_step
         #y = self.dilated_conv(y) + conditioner
-        y = self.cross_attention(self.dilated_conv(y), conditioner)
+        print(f"before cross attention ==> y: {y.shape}")
+        y = self.cross_attention(self.dilated_conv(y).permute(0, 2, 1), conditioner.permute(0, 2, 1))
+
+        print(f"after cross attention ==> y: {y.shape}")
+
         #if conditioner_global is not None:
         #    y = y + self.conditioner_projection_global(conditioner_global)
 
