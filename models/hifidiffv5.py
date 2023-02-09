@@ -188,6 +188,8 @@ class CrossAttnProcessor:
     def __call__(self, attn: CrossAttention, hidden_states, encoder_hidden_states=None, attention_mask=None):
         # hidden_states ==> main sequence
         # encoder_hidden_states ==> conditioner
+        print(f"hidden_states: {hidden_states.shape}")
+        print(f"encoder_hidden_states: {encoder_hidden_states.shape}")
         batch_size, sequence_length, _ = hidden_states.shape
         attention_mask = attn.prepare_attention_mask(attention_mask, sequence_length)
 
