@@ -147,6 +147,7 @@ class ResidualBlock(nn.Module):
         film_shift, film_scale = self.film(conditioner, diffusion_step) 
         # film_shift ==> B, 2C, F frame(256), film_scale ==> B, 2C, F frame(256)
 
+        print(f"y: {y.shape}, film_shift: {film_shift.shape}, film_scale: {film_scale.shape}")
         y = film_scale * y + film_shift #B, 2C, L
         
         #if conditioner_global is not None:
