@@ -294,10 +294,11 @@ class ResidualBlock(nn.Module):
 
         y = x + diffusion_step
         #y = self.dilated_conv(y) + conditioner
-        print(f"before cross attention ==> y: {y.shape}")
+        #print(f"before cross attention ==> y: {y.shape}")
         y = self.cross_attention(self.dilated_conv(y).permute(0, 2, 1), conditioner.permute(0, 2, 1))
+        y = y.permute(0, 2, 1)
 
-        print(f"after cross attention ==> y: {y.shape}")
+        #print(f"after cross attention ==> y: {y.shape}")
 
         #if conditioner_global is not None:
         #    y = y + self.conditioner_projection_global(conditioner_global)
