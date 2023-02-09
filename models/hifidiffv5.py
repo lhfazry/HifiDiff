@@ -279,7 +279,7 @@ class ResidualBlock(nn.Module):
         self.cross_attention = CrossAttention(
             query_dim = 2 * residual_channels,
             heads = 8,
-            dim_head = 64,
+            dim_head = 16,
             bias=False)
 
         self.diffusion_projection = Linear(512, residual_channels)
