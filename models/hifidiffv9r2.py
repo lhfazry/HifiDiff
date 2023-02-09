@@ -119,7 +119,7 @@ class ResidualBlock(nn.Module):
 
         #gate, filter = torch.chunk(y, 2, dim=1)
         #y = torch.sigmoid(gate) * torch.tanh(filter)
-        y = x = F.leaky_relu(y, 0.4)
+        y = F.leaky_relu(y, 0.4)
 
         y = self.output_projection(y)
         residual, skip = torch.chunk(y, 2, dim=1)
