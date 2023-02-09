@@ -100,3 +100,15 @@ CUDA_VISIBLE_DEVICES=7 python __main__.py \
 CUDA_VISIBLE_DEVICES=7 python inference.py checkpoints/hifidiffv3_c8_k3_c64_d0 /workspace/LJSpeech-1.1 filelists/test.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv3_c8_k3_c64_d0.log 2>&1 &
 
 python tools/evaluate.py --sdir=checkpoints/sample_slow/hifidiffv3_c8_k3_c64_d0_step2500 --odir=/workspace/LJSpeech-1.1/wavs
+
+7. hifidiffv5
+CUDA_VISIBLE_DEVICES=7 python __main__.py \
+    configs/hifidiffv5.py \
+    checkpoints/hifidiffv5 \
+    /workspace/LJSpeech-1.1 \
+    filelists/train.txt \
+    --max_steps 2500 --validate_loop 250 --save_ckpt_loop 2500 >> logs/hifidiffv5.log 2>&1 &
+
+CUDA_VISIBLE_DEVICES=7 python inference.py checkpoints/hifidiffv5 /workspace/LJSpeech-1.1 filelists/test.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv5.log 2>&1 &
+
+python tools/evaluate.py --sdir=checkpoints/sample_slow/hifidiffv5_step2500 --odir=/workspace/LJSpeech-1.1/wavs
