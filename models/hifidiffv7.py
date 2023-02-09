@@ -63,15 +63,15 @@ class FiLM(nn.Module):
     nn.init.zeros_(self.output_conv.bias)
 
   def forward(self, spectrogram, diffusion_step):
-    # spectrogram ==> B, C, F frame(256)
+    # spectrogram ==> B, C, L
     # diffusion_step ==> B, C, 1
-    spectrogram = spectrogram + diffusion_step # B, C, F frame(256)
-    spectrogram = self.input_conv(spectrogram) # B, C, F frame(256)
+    spectrogram = spectrogram + diffusion_step # B, C, L
+    spectrogram = self.input_conv(spectrogram) # B, C, L
     spectrogram = F.leaky_relu(spectrogram, 0.2)
     #z = self.encoding(z, noise_scale)
-    shift, scale = torch.chunk(self.output_conv(spectrogram), 2, dim=1) # B, 4C, F frame(256)
+    shift, scale = torch.chunk(self.output_conv(spectrogram), 2, dim=1) # B, 4C, L
 
-    return shift, scale # shift ==> B, 2C, F frame(256), scale ==> B, 2C, F frame(256)
+    return shift, scale # shift ==> B, 2C, L, scale ==> B, 2C, L
 
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
@@ -136,16 +136,16 @@ class ResidualBlock(nn.Module):
 
     def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
         # x ==> B, C, L
-        # spectrogram ==> B, M (n_mels), F frame(256)
+        # spectrogram ==> B, M (n_mels), L
         # diffusion_step ==> B
 
         diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1) # (B, C, 1)
-        conditioner = self.conditioner_projection(conditioner) # B, C, F frame(256)
+        conditioner = self.conditioner_projection(conditioner) # B, C, L
 
         #y = x + diffusion_step
         y = self.dilated_conv(x) # B, 2C, L
         film_shift, film_scale = self.film(conditioner, diffusion_step) 
-        # film_shift ==> B, 2C, F frame(256), film_scale ==> B, 2C, F frame(256)
+        # film_shift ==> B, 2C, L, film_scale ==> B, 2C, L
 
         print(f"y: {y.shape}, film_shift: {film_shift.shape}, film_scale: {film_scale.shape}")
         y = film_scale * y + film_shift #B, 2C, L
@@ -183,7 +183,7 @@ class HifiDiffV7(nn.Module):
         self.input_projection = Conv1d(1, params.residual_channels, 1)
         self.diffusion_embedding = DiffusionEmbedding(len(params.noise_schedule))
 
-        #self.spectrogram_upsampler = SpectrogramUpsampler(self.n_mels)
+        self.spectrogram_upsampler = SpectrogramUpsampler(self.n_mels)
         if self.condition_prior_global:
             self.global_condition_upsampler = SpectrogramUpsampler(self.n_cond)
         self.residual_layers = nn.ModuleList([
@@ -208,7 +208,7 @@ class HifiDiffV7(nn.Module):
         x = F.relu(x)
 
         diffusion_step = self.diffusion_embedding(diffusion_step) # B, 512
-        #spectrogram = self.spectrogram_upsampler(spectrogram)
+        spectrogram = self.spectrogram_upsampler(spectrogram) #B, M (n_mels), L
 
         #if global_cond is not None:
         #    global_cond = self.global_condition_upsampler(global_cond)
