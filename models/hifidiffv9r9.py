@@ -54,7 +54,7 @@ def swish(x):
 
 @torch.jit.script
 def rtanh(x):
-    return torch.tanh(x) if x >= 0 else torch.tensor(0.)
+    return torch.tanh(x) if x >= torch.tensor(0.) else torch.tensor(0.)
 
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
