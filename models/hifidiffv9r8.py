@@ -48,6 +48,10 @@ def Conv1d(*args, **kwargs):
 def silu(x):
     return x * torch.sigmoid(x)
 
+@torch.jit.script
+def swish(x):
+    return x * torch.sigmoid(1.2 * x)
+
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
         super().__init__()
@@ -119,14 +123,14 @@ class ResidualBlock(nn.Module):
 
         #gate, filter = torch.chunk(y, 2, dim=1)
         #y = torch.sigmoid(gate) * torch.tanh(filter)
-        y = torch.tanh(y)
+        y = swish(y)
 
         y = self.output_projection(y)
         residual, skip = torch.chunk(y, 2, dim=1)
         return (x + residual) / sqrt(2.0), skip
 
 
-class HifiDiffV9R6(nn.Module):
+class HifiDiffV9R8(nn.Module):
     def __init__(self, params):
         super().__init__()
         self.params = params
