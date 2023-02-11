@@ -105,7 +105,7 @@ class ResidualBlock(nn.Module):
         self.conditioner_projection = Conv1d(n_mels, residual_channels, 1)
         if n_cond_global is not None:
             self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
-        self.output_projection = Conv1d(2 * residual_channels, 2 * residual_channels, 1)
+        self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
 
     def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
         diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
