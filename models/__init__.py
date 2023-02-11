@@ -21,4 +21,6 @@ from .hifidiffv9r10 import HifiDiffV9R10
 from .hifidiffv9r11 import HifiDiffV9R11
 from .hifidiffv9r12 import HifiDiffV9R12
 from .hifidiffv9r13 import HifiDiffV9R13
+from .hifidiffv9r14 import HifiDiffV9R14
+from .hifidiffv9r15 import HifiDiffV9R15
 from .wavegrad import WaveGrad
