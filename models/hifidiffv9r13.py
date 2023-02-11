@@ -106,9 +106,9 @@ class SpectrogramUpsampler(nn.Module):
     def forward(self, x):
         x = torch.unsqueeze(x, 1)
         x = self.conv1(x)
-        x = F.leaky_relu(x)
+        x = F.leaky_relu(x, 0.4)
         x = self.conv2(x)
-        x = F.leaky_relu(x)
+        x = F.leaky_relu(x, 0.4)
         x = torch.squeeze(x, 1)
         return x
 
