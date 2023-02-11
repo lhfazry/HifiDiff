@@ -48,18 +48,6 @@ def Conv1d(*args, **kwargs):
 def silu(x):
     return x * torch.sigmoid(x)
 
-@torch.jit.script
-def swish(x):
-    return x * torch.sigmoid(1.2 * x)
-
-@torch.jit.script
-def rtanh(x):
-    return torch.where(x < 0.0, 0.0, torch.tanh(x))
-
-@torch.jit.script
-def mish(x):
-    return x * torch.tanh(torch.log(1 + torch.exp(x)))
-
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
         super().__init__()
@@ -112,9 +100,9 @@ class SpectrogramUpsampler(nn.Module):
 class ResidualBlock(nn.Module):
     def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
         super().__init__()
-        self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
+        self.dilated_conv = Conv1d(residual_channels, residual_channels, 3, padding=dilation, dilation=dilation)
         self.diffusion_projection = Linear(512, residual_channels)
-        self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
+        self.conditioner_projection = Conv1d(n_mels, residual_channels, 1)
         if n_cond_global is not None:
             self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
         self.output_projection = Conv1d(2 * residual_channels, 2 * residual_channels, 1)
@@ -131,7 +119,7 @@ class ResidualBlock(nn.Module):
 
         #gate, filter = torch.chunk(y, 2, dim=1)
         #y = torch.sigmoid(gate) * torch.tanh(filter)
-        y = mish(y)
+        y = torch.tanh(y)
 
         y = self.output_projection(y)
         residual, skip = torch.chunk(y, 2, dim=1)
