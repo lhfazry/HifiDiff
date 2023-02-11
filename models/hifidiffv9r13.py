@@ -62,7 +62,7 @@ def mish(x):
 
 @torch.jit.script
 def snake(x):
-    return x + torch.sin(x)
+    return x + torch.sin(x) ** 2
 
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
