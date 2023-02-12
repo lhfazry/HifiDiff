@@ -11,6 +11,7 @@ from tools.preprocess import MAX_WAV_VALUE, get_mel, normalize
 import os
 from pathlib import Path
 from mel_cepstral_distance import get_metrics_wavs, get_metrics_mels
+from glob import glob
 
 
 def main(args):
@@ -18,7 +19,7 @@ def main(args):
     total = 0
     sr = 22050
 
-    for fname in os.listdir(args.sdir):
+    for fname in glob(os.path.join(args.sdir, f"{args.prefix}*.wav")):
         mcd, penalty, _ = get_metrics_wavs(Path(os.path.join(args.sdir, fname)), 
             Path(os.path.join(args.odir, fname)))
 
@@ -32,5 +33,7 @@ if __name__ == '__main__':
     parser = ArgumentParser(description='Calculate MCD')
     parser.add_argument('--sdir', help='Synthetic directory of waveform')
     parser.add_argument('--odir', help='Original directory of waveform')
+    parser.add_argument('--sr', type=int, default=22050, help='Sampling rate')
+    parser.add_argument('--prefix', default=None, help='Prefix')
     
     main(parser.parse_args())
