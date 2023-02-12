@@ -20,7 +20,7 @@ def main(args):
     sr = 22050
 
     for fname in glob(os.path.join(args.sdir, f"{args.prefix}*.wav")):
-        mcd, penalty, _ = get_metrics_wavs(fname, 
+        mcd, penalty, _ = get_metrics_wavs(Path(fname), 
             Path(os.path.join(args.odir, fname)))
 
         results += mcd
