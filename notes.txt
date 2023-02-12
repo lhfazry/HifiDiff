@@ -355,6 +355,8 @@ CUDA_VISIBLE_DEVICES=7 python __main__.py \
 
 CUDA_VISIBLE_DEVICES=7 python inference.py checkpoints/hifidiffv10 /workspace/LJSpeech-1.1 filelists/test.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv10.log 2>&1 &
 
+CUDA_VISIBLE_DEVICES=7 python inference.py checkpoints/hifidiffv10 /workspace/LJSpeech-1.1 filelists/indsp_test.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv10.log 2>&1 &
+
 python tools/evaluate2.py --sdir=checkpoints/sample_slow/hifidiffv10_step2500 --odir=/workspace/LJSpeech-1.1/wavs
 
 26. hifidiffv10r1

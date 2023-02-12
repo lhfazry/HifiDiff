@@ -132,6 +132,7 @@ def main(args):
     # load the saved parameters of the model from "params_saved.py"
     import params_saved
     params = params_saved.params
+    params.sample_rate = args.sr
 
     # override noise_schedule param for additional tests
     T_OVERRIDE = args.fast_iter
@@ -217,4 +218,6 @@ if __name__ == '__main__':
     parser.add_argument('--fast_iter', '-t', type=int, default=None,
                         help='number of fast inference diffusion steps for sampling.'
                              '6, 12, and 50 steps are officially supported. If other value is provided, linear beta schedule is used.')
+    parser.add_argument('--sr', type=int, default=22050,
+                        help='Override sample rate in configuration')
     main(parser.parse_args())
