@@ -69,6 +69,6 @@ params = AttrDict(
     inference_noise_schedule=[0.0001, 0.001, 0.01, 0.05, 0.2, 0.5], # T>=50
     # inference_noise_schedule=[0.001, 0.01, 0.05, 0.2] # designed for for T=20
     
-    model=44, #hifidiffv11r3
-    use_stft=True,
+    model=43, #hifidiffv11r3
+    use_stft_loss=True,
 )
