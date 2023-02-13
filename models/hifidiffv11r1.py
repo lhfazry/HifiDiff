@@ -190,7 +190,7 @@ class HifiDiffV11R1(nn.Module):
         skip = []
         for index, layer in enumerate(self.residual_layers):
             #self.start.record()
-            x, skip_connection = layer(x, spectrogram, diffusion_step, global_cond, index)
+            x, skip_connection = layer(x, spectrogram, diffusion_step, global_cond, index=index)
             #self.end.record()
             #torch.cuda.synchronize()
             #print(f"residual_layers time: {self.start.elapsed_time(self.end)}\n\n")
