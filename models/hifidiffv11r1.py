@@ -106,7 +106,6 @@ class ResidualBlock(nn.Module):
         if n_cond_global is not None:
             self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
         self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
-        self.index = index
 
     def forward(self, x, conditioner, diffusion_step, conditioner_global=None, index=None):
         diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
@@ -114,7 +113,7 @@ class ResidualBlock(nn.Module):
 
         y = x + diffusion_step
 
-        if self.index % 2 == 0:
+        if index % 2 == 0:
             y = self.dilated_conv(y) + conditioner
         else:
             y = self.dilated_conv(y) * conditioner
