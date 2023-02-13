@@ -31,11 +31,20 @@ def main(args):
         total += 1
         
         audio1, sr1 = torchcrepe.load.audio(fname)
+        audio2, sr2 = torchcrepe.load.audio(os.path.join(args.odir, Path(fname).name))
+
+        if audio1.shape[1] > audio2.shape[1]:
+            audio1 = audio1[:,audio2.shape[1]]
+        
+        if audio2.shape[1] > audio1.shape[1]:
+            audio2 = audio2[:,audio1.shape[1]]
+
         pitch1, periodicity1 = torchcrepe.predict(audio1, sr1, 256, 50, 550,
                            'tiny', return_periodicity=True, batch_size=1024,
                            device='cuda:0')
+        print(f"Audio1: ")
 
-        audio2, sr2 = torchcrepe.load.audio(os.path.join(args.odir, Path(fname).name))
+        
         pitch2, periodicity2 = torchcrepe.predict(audio2, sr2, 256, 50, 550,
                            'tiny', return_periodicity=True, batch_size=1024,
                            device='cuda:0')
