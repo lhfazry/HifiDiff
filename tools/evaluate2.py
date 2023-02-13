@@ -48,8 +48,9 @@ def main(args):
         pitch2, periodicity2 = torchcrepe.predict(audio2, sr2, 256, 50, 550,
                            'tiny', return_periodicity=True, batch_size=1024,
                            device='cuda:0')
+
         print(f"pitch1: {pitch1.shape}, pitch2: {pitch2.shape}")
-        pitch += 1200 * torch.log2(pitch1 / pitch2)
+        pitch += torch.mean(1200 * torch.log2(pitch1 / pitch2))
         periodicity += torch.sqrt(torch.nn.functional.mse_loss(periodicity1, periodicity2))
     
     print(f"MCD: {mcds/total}")
