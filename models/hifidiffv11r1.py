@@ -98,7 +98,7 @@ class SpectrogramUpsampler(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None, index=None):
+    def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
         super().__init__()
         self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
         self.diffusion_projection = Linear(512, residual_channels)
@@ -108,7 +108,7 @@ class ResidualBlock(nn.Module):
         self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
         self.index = index
 
-    def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
+    def forward(self, x, conditioner, diffusion_step, conditioner_global=None, index=None):
         diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
         conditioner = self.conditioner_projection(conditioner)
 
