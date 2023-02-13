@@ -201,6 +201,10 @@ class PriorGradLearner:
                 sc_loss, mag_loss = STFTLoss()(predicted.squeeze(1), noise)
                 loss += sc_loss + mag_loss
 
+            if hasattr(param, 'use_mstft_loss') and param.use_mstft_loss:
+                sc_loss, mag_loss = MultiResolutionSTFTLoss()(predicted.squeeze(1), noise)
+                loss += sc_loss + mag_loss
+
         self.scaler.scale(loss).backward()
         self.scaler.unscale_(self.optimizer)
         self.grad_norm = nn.utils.clip_grad_norm_(self.model.parameters(), self.params.max_grad_norm or 1e9)
