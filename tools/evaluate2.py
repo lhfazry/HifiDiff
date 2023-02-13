@@ -34,6 +34,6 @@ if __name__ == '__main__':
     parser.add_argument('--sdir', help='Synthetic directory of waveform')
     parser.add_argument('--odir', help='Original directory of waveform')
     parser.add_argument('--sr', type=int, default=22050, help='Sampling rate')
-    parser.add_argument('--prefix', default=None, help='Prefix')
+    parser.add_argument('--prefix', default='LJ', help='Prefix')
     
     main(parser.parse_args())
