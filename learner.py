@@ -42,6 +42,7 @@ from dataset import from_path as dataset_from_path
 from dataset import from_path_valid as dataset_from_path_valid
 from models.builder import build_model
 from tools.preprocess import get_mel
+from misc.stft_loss import STFTLoss, MultiResolutionSTFTLoss
 
 def _nested_map(struct, map_fn):
     if isinstance(struct, tuple):
@@ -142,6 +143,7 @@ class PriorGradLearner:
                 loss, predicted = self.train_step(features)
                 if torch.isnan(loss).any():
                     raise RuntimeError(f'Detected NaN loss at step {self.step}.')
+
                 if self.is_master:
                     if self.step % 50 == 0:
                         self._write_summary(self.step, features, loss)
@@ -194,6 +196,10 @@ class PriorGradLearner:
                     loss = nn.MSELoss()(noise, predicted.squeeze(1))
                 else:
                     loss = nn.L1Loss()(noise, predicted.squeeze(1))
+
+            if hasattr(param, 'use_stft_loss') and param.use_stft_loss:
+                sc_loss, mag_loss = STFTLoss()(predicted.squeeze(1), noise)
+                loss += sc_loss + mag_loss
 
         self.scaler.scale(loss).backward()
         self.scaler.unscale_(self.optimizer)
