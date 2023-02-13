@@ -42,8 +42,6 @@ def main(args):
         pitch1, periodicity1 = torchcrepe.predict(audio1, sr1, 256, 50, 550,
                            'tiny', return_periodicity=True, batch_size=1024,
                            device='cuda:0')
-        print(f"Audio1: ")
-
         
         pitch2, periodicity2 = torchcrepe.predict(audio2, sr2, 256, 50, 550,
                            'tiny', return_periodicity=True, batch_size=1024,
