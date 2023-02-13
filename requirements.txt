@@ -7,3 +7,4 @@ tensorboard
 dc1d
 fastdtw
 mel-cepstral-distance
+torchcrepe
