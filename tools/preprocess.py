@@ -138,8 +138,7 @@ def get_mel_f0(audio, params, center=False):
                                                 high_freq=fmax,
                                                 harmonic_threshold=0.85)
 
-    assert len(pitch.shape) == 1
-    assert len(harmonic.shape) == 1
+    assert pitch.shape[-1] == spec.shape[-1]
 
     f0 = np.concatenate((np.expand_dims(pitch, axis=0), np.expand_dims(harmonic, axis=0)))
     assert f0.shape[0] == 2
