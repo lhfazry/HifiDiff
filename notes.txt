@@ -466,7 +466,7 @@ CUDA_VISIBLE_DEVICES=7 python __main__.py \
 CUDA_VISIBLE_DEVICES=7 python tools/evaluate2.py --prefix LJ --sdir=checkpoints/sample_slow/hifidiffv11r2_mstft_step2500 --odir=/workspace/LJSpeech-1.1/wavs
 
 34. hifidiffv11r2_f0
-CUDA_VISIBLE_DEVICES=7 python __main__.py \
+CUDA_VISIBLE_DEVICES=4 python __main__.py \
     configs/hifidiffv11r2_f0.py \
     checkpoints/hifidiffv11r2_f0 \
     /workspace/LJSpeech-1.1 \
