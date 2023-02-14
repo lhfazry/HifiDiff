@@ -99,7 +99,7 @@ class SpectrogramUpsampler(nn.Module):
 
 class ResidualBlock(nn.Module):
     def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None, 
-            n_f0=None, n_harmonic=None):
+            n_f0=None):
         super().__init__()
         self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
         self.diffusion_projection = Linear(512, residual_channels)
@@ -110,9 +110,6 @@ class ResidualBlock(nn.Module):
 
         if n_f0 is not None:
             self.f0_projection = Conv1d(n_f0, 2 * residual_channels, 1)
-
-        if n_harmonic is not None:
-            self.harmonic_projection = Conv1d(n_harmonic, 2 * residual_channels, 1)
 
         self.output_projection = Conv1d(2 * residual_channels, 2 * residual_channels, 1)
 
@@ -131,9 +128,6 @@ class ResidualBlock(nn.Module):
 
             if f0 is not None:
                 y = y + self.f0_projection(f0)
-
-            if harmonic is not None:
-                y = y + self.harmonic_projection(harmonic)
         else:
             y = self.dilated_conv(y) * conditioner
 
@@ -142,9 +136,6 @@ class ResidualBlock(nn.Module):
 
             if f0 is not None:
                 y = y * self.f0_projection(f0)
-
-            if harmonic is not None:
-                y = y * self.harmonic_projection(harmonic)
 
         y = torch.tanh(y)
 
@@ -181,19 +172,14 @@ class HifiDiffV11R2(nn.Module):
             self.global_condition_upsampler = SpectrogramUpsampler(self.n_cond)
         
         self.n_f0 = None
-        self.n_harmonic = None
 
         if hasattr(self.params, 'use_f0') and self.params.use_f0:
-            self.n_f0 = 1
+            self.n_f0 = 2
             self.f0_upsampler = SpectrogramUpsampler(self.n_f0)
-
-        if hasattr(self.params, 'use_harmonic') and self.params.use_harmonic:
-            self.n_harmonic = 1
-            self.harmonic_upsampler = SpectrogramUpsampler(self.n_harmonic)
 
         self.residual_layers = nn.ModuleList([
             ResidualBlock(self.n_mels, params.residual_channels, 2 ** (i % params.dilation_cycle_length),
-                          n_cond_global=self.n_cond, n_f0=self.n_f0, n_harmonic=self.n_harmonic)
+                          n_cond_global=self.n_cond, n_f0=self.n_f0)
             for i in range(params.residual_layers)
         ])
         self.skip_projection = Conv1d(params.residual_channels, params.residual_channels, 1)
@@ -204,7 +190,7 @@ class HifiDiffV11R2(nn.Module):
         #self.start = torch.cuda.Event(enable_timing=True)
         #self.end = torch.cuda.Event(enable_timing=True)
 
-    def forward(self, audio, spectrogram, diffusion_step, global_cond=None, f0=None, harmonic=None):
+    def forward(self, audio, spectrogram, diffusion_step, global_cond=None, f0=None, **kwargs):
         x = audio.unsqueeze(1)
         x = self.input_projection(x)
         x = F.relu(x)
@@ -214,9 +200,6 @@ class HifiDiffV11R2(nn.Module):
 
         if f0 is not None:
             f0 = self.f0_upsampler(f0)
-        
-        if harmonic is not None:
-            harmonic = self.harmonic_upsampler(harmonic)
 
         if global_cond is not None:
             global_cond = self.global_condition_upsampler(global_cond)
@@ -224,7 +207,7 @@ class HifiDiffV11R2(nn.Module):
         skip = []
         for index, layer in enumerate(self.residual_layers):
             x, skip_connection = layer(x, spectrogram, diffusion_step, 
-                global_cond, f0=f0, harmonic=harmonic, index=index)
+                global_cond, f0=f0, index=index)
             skip.append(skip_connection)
 
         x = torch.sum(torch.stack(skip), dim=0) / sqrt(len(self.residual_layers))

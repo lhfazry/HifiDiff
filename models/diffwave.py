@@ -163,7 +163,7 @@ class DiffWave(nn.Module):
         #self.start = torch.cuda.Event(enable_timing=True)
         #self.end = torch.cuda.Event(enable_timing=True)
 
-    def forward(self, audio, spectrogram, diffusion_step, global_cond=None):
+    def forward(self, audio, spectrogram, diffusion_step, global_cond=None, **kwargs):
         x = audio.unsqueeze(1)
         x = self.input_projection(x)
         x = F.relu(x)
@@ -196,5 +196,5 @@ class DiffWave(nn.Module):
         x = self.skip_projection(x)
         x = F.relu(x)
         x = self.output_projection(x)
-        
+
         return x

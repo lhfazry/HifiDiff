@@ -199,7 +199,7 @@ class HifiDiffV7R2(nn.Module):
         #self.start = torch.cuda.Event(enable_timing=True)
         #self.end = torch.cuda.Event(enable_timing=True)
 
-    def forward(self, audio, spectrogram, diffusion_step, global_cond=None):
+    def forward(self, audio, spectrogram, diffusion_step, global_cond=None, **kwargs):
         # audio ==> B, L
         # spectrogram ==> B, M (n_mels), F frame(256)
         # diffusion_step ==> B

@@ -143,21 +143,20 @@ class NumpyDataset(torch.utils.data.Dataset):
             target_std = torch.ones_like(spectrogram[:, 0, :])
 
         if hasattr(self.params, 'use_f0') and self.params.use_f0:
-            f0, harmonic, _, _  = ff.compute_yin(audio, sr, win_len=0.050,
+            pitch, harmonic, _, _  = ff.compute_yin(audio, sr, win_len=0.050,
                                                         win_hop=0.025,
                                                         low_freq=50,
                                                         high_freq=1000,
                                                         harmonic_threshold=0.85)
-            f0 = normalize(f0) * 0.95
-            harmonic = normalize(harmonic) * 0.95
+
+            f0 = normalize(np.concatenate((pitch, harmonic), axis=0), axis=1) * 0.95
 
         return {
             'audio': audio, # [T_time]
             'spectrogram': spectrogram[0].T, # [T_mel, 80]
             'target_std': target_std[0], # [T_mel]
             'filename': audio_filename,
-            'f0': f0,
-            'harmonic': harmonic
+            'f0': f0
         }
 
 
@@ -195,7 +194,6 @@ class Collator:
             'target_std': target_std,
             'filename': filename,
             'f0': f0,
-            'harmonic': harmonic,
         }
 
 def from_path(data_root, filelist, params, is_distributed=False):

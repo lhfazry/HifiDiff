@@ -359,7 +359,7 @@ class HifiDiffV2(nn.Module):
 
         print('num param: {}'.format(sum(p.numel() for p in self.parameters() if p.requires_grad)))
 
-    def forward(self, audio, spectrogram, diffusion_step, global_cond=None):
+    def forward(self, audio, spectrogram, diffusion_step, global_cond=None, **kwargs):
         x = audio.unsqueeze(1)
         x = self.input_projection(x)
         x = F.relu(x)
