@@ -36,7 +36,7 @@ from tqdm import tqdm
 from torch.utils.data.distributed import DistributedSampler
 from pathlib import Path
 from scipy.io.wavfile import read
-from tools.preprocess import MAX_WAV_VALUE, get_mel, normalize
+from tools.preprocess import MAX_WAV_VALUE, get_mel, get_mel_f0, normalize
 from spafe.frequencies import fundamental_frequencies as ff
 
 device = torch.device("cuda")
@@ -131,7 +131,13 @@ class NumpyDataset(torch.utils.data.Dataset):
             end = start + (self.params.crop_mel_frames * self.params.hop_samples)
             audio = audio[start:end]
 
-        spectrogram = get_mel(audio, self.params)
+        f0 = None
+
+        if hasattr(self.params, 'use_f0') and self.params.use_f0:
+            spectrogram, f0 = get_mel_f0(audio, self.params)
+        else:
+            spectrogram= get_mel(audio, self.params)
+
         energy = (spectrogram.exp()).sum(1).sqrt()
 
         if self.use_prior:
@@ -144,11 +150,12 @@ class NumpyDataset(torch.utils.data.Dataset):
 
         if hasattr(self.params, 'use_f0') and self.params.use_f0:
             win_hop = self.params.hop_samples/sr
-            pitch, harmonic, _, _  = ff.compute_yin(audio, sr, win_len=win_hop*4,
-                                                        win_hop=win_hop,
-                                                        low_freq=50,
-                                                        high_freq=1000,
-                                                        harmonic_threshold=0.85)
+            pitch, harmonic, _, _  = ff.compute_yin(audio, sr, 
+                                                    win_len=win_hop*4,
+                                                    win_hop=win_hop,
+                                                    low_freq=50,
+                                                    high_freq=1000,
+                                                    harmonic_threshold=0.85)
 
             f0 = normalize(np.concatenate((np.expand_dims(pitch, axis=0), 
                 np.expand_dims(harmonic, axis=0))), axis=1) * 0.95

@@ -40,10 +40,12 @@
 # SOFTWARE.
 
 import torch
-
+import numpy as np
 from librosa.filters import mel as librosa_mel_fn
 from librosa.util import normalize
 from scipy.io.wavfile import read
+from spafe.frequencies import fundamental_frequencies as ff
+
 
 MAX_WAV_VALUE = 32768.0
 mel_basis = {}
@@ -93,6 +95,53 @@ def get_mel(audio, params, center=False):
     spec = spectral_normalize_torch(spec)
 
     return spec
+
+def get_mel_f0(audio, params, center=False):
+    n_fft = params.n_fft
+    num_mels = params.n_mels
+    sampling_rate = params.sample_rate
+    hop_size = params.hop_samples
+    win_size = params.hop_samples * 4
+    fmin = params.fmin
+    fmax = params.fmax
+
+    y = audio.unsqueeze(0)
+
+    if torch.min(y) < -1.:
+        print('min value is ', torch.min(y))
+    if torch.max(y) > 1.:
+        print('max value is ', torch.max(y))
+
+    global mel_basis, hann_window
+    if fmax not in mel_basis:
+        mel = librosa_mel_fn(sr=sampling_rate, n_fft=n_fft, n_mels=num_mels, fmin=fmin, fmax=fmax)
+        mel_basis[str(fmax)+'_'+str(y.device)] = torch.from_numpy(mel).float().to(y.device)
+        hann_window[str(y.device)] = torch.hann_window(win_size).to(y.device)
+
+    y = torch.nn.functional.pad(y.unsqueeze(1), (int((n_fft-hop_size)/2), int((n_fft-hop_size)/2)), mode='reflect')
+    y = y.squeeze(1)
+
+    # complex tensor as default, then use view_as_real for future pytorch compatibility
+    spec = torch.stft(y, n_fft, hop_length=hop_size, win_length=win_size, window=hann_window[str(y.device)],
+                      center=center, pad_mode='reflect', normalized=False, onesided=True, return_complex=True)
+    spec = torch.view_as_real(spec)
+    spec = torch.sqrt(spec.pow(2).sum(-1)+(1e-9))
+
+    spec = torch.matmul(mel_basis[str(fmax)+'_'+str(y.device)], spec)
+    spec = spectral_normalize_torch(spec)
+
+    pitch, harmonic, _, _  = ff.compute_yin(y, sampling_rate, 
+                                                win_len=win_size,
+                                                win_hop=hop_size,
+                                                low_freq=50,
+                                                high_freq=1000,
+                                                harmonic_threshold=0.85)
+
+    f0 = normalize(np.concatenate((np.expand_dims(pitch, axis=0), 
+                np.expand_dims(harmonic, axis=0))), axis=1) * 0.95
+    f0 = torch.from_numpy(f0).float().to(y.device)
+
+    return spec, f0
 
 # function to get both audio and mel from filepath. Not used for training (uses on-the-fly mel generation instead).
 def get_audio_mel(filepath, params, center=False):
