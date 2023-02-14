@@ -208,6 +208,8 @@ class HifiDiffV11R2(nn.Module):
         diffusion_step = self.diffusion_embedding(diffusion_step)
         spectrogram = self.spectrogram_upsampler(spectrogram)
 
+        print(f"diffusion_step: {diffusion_step.shape}")
+
         if f0 is not None:
             f0 = self.f0_upsampler(f0)
 
