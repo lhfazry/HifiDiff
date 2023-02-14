@@ -134,8 +134,8 @@ def get_mel_f0(audio, params, center=False):
     pitch, harmonic, _, _  = ff.compute_yin(y.squeeze(0).cpu().numpy(), sampling_rate, 
                                                 win_len=win_size / sampling_rate,
                                                 win_hop=hop_size / sampling_rate,
-                                                low_freq=params.fmin,
-                                                high_freq=params.fmax,
+                                                low_freq=50,
+                                                high_freq=fmax,
                                                 harmonic_threshold=0.85)
 
     assert len(pitch.shape) == 1
