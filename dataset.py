@@ -143,17 +143,16 @@ class NumpyDataset(torch.utils.data.Dataset):
             target_std = torch.ones_like(spectrogram[:, 0, :])
 
         if hasattr(self.params, 'use_f0') and self.params.use_f0:
-            pitch, harmonic, _, _  = ff.compute_yin(audio, sr, win_len=0.050,
-                                                        win_hop=0.025,
+            win_hop = self.params.hop_samples/sr
+            pitch, harmonic, _, _  = ff.compute_yin(audio, sr, win_len=win_hop*4,
+                                                        win_hop=win_hop,
                                                         low_freq=50,
                                                         high_freq=1000,
                                                         harmonic_threshold=0.85)
 
-            f0 = normalize(np.concatenate((np.expand_dims(pitch, axis=1), 
-                np.expand_dims(harmonic, axis=1)), axis=1), axis=1) * 0.95
+            f0 = normalize(np.concatenate((np.expand_dims(pitch, axis=0), 
+                np.expand_dims(harmonic, axis=0))), axis=1) * 0.95
             f0 = torch.from_numpy(f0).float().to(audio.device)
-
-            print(f"f0: {f0.shape}")
 
         return {
             'audio': audio, # [T_time]
