@@ -131,7 +131,7 @@ def get_mel_f0(audio, params, center=False):
     spec = spectral_normalize_torch(spec)
 
     print(f"y: {y.shape}")
-    assert len(y.shape) == 1
+    assert len(y.squeeze(0).shape) == 1
     pitch, harmonic, _, _  = ff.compute_yin(y.squeeze(0).cpu().numpy(), sampling_rate, 
                                                 win_len=win_size,
                                                 win_hop=hop_size,
