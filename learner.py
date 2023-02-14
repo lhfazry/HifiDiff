@@ -161,6 +161,8 @@ class PriorGradLearner:
         audio = features['audio']
         spectrogram = features['spectrogram']
         target_std = features['target_std']
+        f0 = features['f0']
+        harmonic = features['harmonic']
 
         if self.condition_prior:
             target_std_specdim = target_std[:, ::self.params.hop_samples].unsqueeze(1)
@@ -184,7 +186,10 @@ class PriorGradLearner:
             noise = noise * target_std
             noisy_audio = noise_scale_sqrt * audio + (1.0 - noise_scale) ** 0.5 * noise
 
-            predicted = self.model(noisy_audio, spectrogram, t, global_cond)
+            if hasattr(param, 'use_f0') and param.use_f0:
+                predicted = self.model(noisy_audio, spectrogram, t, global_cond, f0, harmonic)
+            else:
+                predicted = self.model(noisy_audio, spectrogram, t, global_cond)
 
             if self.use_prior:
                 if self.use_l2loss:

@@ -98,16 +98,26 @@ class SpectrogramUpsampler(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
+    def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None, 
+            n_f0=None, n_harmonic=None):
         super().__init__()
         self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
         self.diffusion_projection = Linear(512, residual_channels)
         self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
+        
         if n_cond_global is not None:
             self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
+
+        if n_f0 is not None:
+            self.f0_projection = Conv1d(n_f0, 2 * residual_channels, 1)
+
+        if n_harmonic is not None:
+            self.harmonic_projection = Conv1d(n_harmonic, 2 * residual_channels, 1)
+
         self.output_projection = Conv1d(2 * residual_channels, 2 * residual_channels, 1)
 
-    def forward(self, x, conditioner, diffusion_step, conditioner_global=None, index=None):
+    def forward(self, x, conditioner, diffusion_step, conditioner_global=None, 
+            f0=None, harmonic=None, index=None):
         diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
         conditioner = self.conditioner_projection(conditioner)
 
@@ -115,11 +125,26 @@ class ResidualBlock(nn.Module):
 
         if index % 2 == 0:
             y = self.dilated_conv(y) + conditioner
+
+            if conditioner_global is not None:
+                y = y + self.conditioner_projection_global(conditioner_global)
+
+            if f0 is not None:
+                y = y + self.f0_projection(f0)
+
+            if harmonic is not None:
+                y = y + self.harmonic_projection(harmonic)
         else:
             y = self.dilated_conv(y) * conditioner
 
-        if conditioner_global is not None:
-            y = y + self.conditioner_projection_global(conditioner_global)
+            if conditioner_global is not None:
+                y = y * self.conditioner_projection_global(conditioner_global)
+
+            if f0 is not None:
+                y = y * self.f0_projection(f0)
+
+            if harmonic is not None:
+                y = y * self.harmonic_projection(harmonic)
 
         y = torch.tanh(y)
 
@@ -140,6 +165,7 @@ class HifiDiffV11R2(nn.Module):
         print("use_prior: {}".format(self.use_prior))
         self.n_mels = params.n_mels
         self.n_cond = None
+        
         print("condition_prior: {}".format(self.condition_prior))
         if self.condition_prior:
             self.n_mels = self.n_mels + 1
@@ -153,9 +179,21 @@ class HifiDiffV11R2(nn.Module):
         self.spectrogram_upsampler = SpectrogramUpsampler(self.n_mels)
         if self.condition_prior_global:
             self.global_condition_upsampler = SpectrogramUpsampler(self.n_cond)
+        
+        self.n_f0 = None
+        self.n_harmonic = None
+
+        if hasattr(self.params, 'use_f0') and self.params.use_f0:
+            self.n_f0 = 1
+            self.f0_upsampler = SpectrogramUpsampler(self.n_f0)
+
+        if hasattr(self.params, 'use_harmonic') and self.params.use_harmonic:
+            self.n_harmonic = 1
+            self.harmonic_upsampler = SpectrogramUpsampler(self.n_harmonic)
+
         self.residual_layers = nn.ModuleList([
             ResidualBlock(self.n_mels, params.residual_channels, 2 ** (i % params.dilation_cycle_length),
-                          n_cond_global=self.n_cond)
+                          n_cond_global=self.n_cond, n_f0=self.n_f0, n_harmonic=self.n_harmonic)
             for i in range(params.residual_layers)
         ])
         self.skip_projection = Conv1d(params.residual_channels, params.residual_channels, 1)
@@ -166,33 +204,27 @@ class HifiDiffV11R2(nn.Module):
         #self.start = torch.cuda.Event(enable_timing=True)
         #self.end = torch.cuda.Event(enable_timing=True)
 
-    def forward(self, audio, spectrogram, diffusion_step, global_cond=None):
+    def forward(self, audio, spectrogram, diffusion_step, global_cond=None, f0=None, harmonic=None):
         x = audio.unsqueeze(1)
         x = self.input_projection(x)
         x = F.relu(x)
 
         diffusion_step = self.diffusion_embedding(diffusion_step)
-        
-        #self.start.record()
-
         spectrogram = self.spectrogram_upsampler(spectrogram)
 
-        #self.end.record()
-
-        #torch.cuda.synchronize()
-        #print(f"spectrogram_upsampler time: {self.start.elapsed_time(self.end)}\n\n")
+        if f0 is not None:
+            f0 = self.f0_upsampler(f0)
+        
+        if harmonic is not None:
+            harmonic = self.harmonic_upsampler(harmonic)
 
         if global_cond is not None:
             global_cond = self.global_condition_upsampler(global_cond)
 
         skip = []
         for index, layer in enumerate(self.residual_layers):
-            #self.start.record()
-            x, skip_connection = layer(x, spectrogram, diffusion_step, global_cond, index=index)
-            #self.end.record()
-            #torch.cuda.synchronize()
-            #print(f"residual_layers time: {self.start.elapsed_time(self.end)}\n\n")
-
+            x, skip_connection = layer(x, spectrogram, diffusion_step, 
+                global_cond, f0=f0, harmonic=harmonic, index=index)
             skip.append(skip_connection)
 
         x = torch.sum(torch.stack(skip), dim=0) / sqrt(len(self.residual_layers))

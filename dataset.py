@@ -37,6 +37,7 @@ from torch.utils.data.distributed import DistributedSampler
 from pathlib import Path
 from scipy.io.wavfile import read
 from tools.preprocess import MAX_WAV_VALUE, get_mel, normalize
+from spafe.frequencies import fundamental_frequencies as ff
 
 device = torch.device("cuda")
 
@@ -140,11 +141,21 @@ class NumpyDataset(torch.utils.data.Dataset):
             target_std = torch.clamp((energy - self.energy_min) / (self.energy_max - self.energy_min), self.std_min, None)
         else:
             target_std = torch.ones_like(spectrogram[:, 0, :])
+
+        if hasattr(self.params, 'use_f0') and self.params.use_f0:
+            f0, harmonic, _, _  = ff.compute_yin(audio, sr, win_len=0.050,
+                                                        win_hop=0.025,
+                                                        low_freq=50,
+                                                        high_freq=1000,
+                                                        harmonic_threshold=0.85)
+
         return {
             'audio': audio, # [T_time]
             'spectrogram': spectrogram[0].T, # [T_mel, 80]
             'target_std': target_std[0], # [T_mel]
-            'filename': audio_filename
+            'filename': audio_filename,
+            'f0': f0,
+            'harmonic': harmonic
         }
 
 
@@ -173,12 +184,16 @@ class Collator:
         spectrogram = torch.stack([record['spectrogram'] for record in minibatch if 'spectrogram' in record])
         target_std = torch.stack([record['target_std'] for record in minibatch if 'target_std' in record])
         filename = [record['filename'] for record in minibatch if 'filename' in record]
+        f0 = [record['f0'] for record in minibatch if 'f0' in record]
+        harmonic = [record['harmonic'] for record in minibatch if 'harmonic' in record]
 
         return {
             'audio': audio,
             'spectrogram': spectrogram,
             'target_std': target_std,
-            'filename': filename
+            'filename': filename,
+            'f0': f0,
+            'harmonic': harmonic,
         }
 
 def from_path(data_root, filelist, params, is_distributed=False):
