@@ -39,7 +39,7 @@ def main(args):
         if audio2.shape[1] > audio1.shape[1]:
             audio2 = audio2[:,:audio1.shape[1]]
 
-        print(f"Audio1: {audio1.shape}, Audio2: {audio2.shape}")
+        #print(f"Audio1: {audio1.shape}, Audio2: {audio2.shape}")
 
         pitch1, periodicity1 = torchcrepe.predict(audio1, sr1, 256, 50, 550,
                            'tiny', return_periodicity=True, batch_size=1024,
@@ -49,7 +49,7 @@ def main(args):
                            'tiny', return_periodicity=True, batch_size=1024,
                            device='cuda:0')
 
-        print(f"pitch1: {pitch1.shape}, pitch2: {pitch2.shape}")
+        #print(f"pitch1: {pitch1.shape}, pitch2: {pitch2.shape}")
         pitch += torch.mean(1200 * torch.log2(pitch1 / pitch2))
         periodicity += torch.sqrt(torch.nn.functional.mse_loss(periodicity1, periodicity2))
     
