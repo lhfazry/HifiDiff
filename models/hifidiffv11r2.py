@@ -123,6 +123,9 @@ class ResidualBlock(nn.Module):
         if index % 2 == 0:
             y = self.dilated_conv(y) + conditioner
 
+            print(f"y: {y.shape}")
+            print(f"conditioner: {conditioner.shape}")
+            
             if conditioner_global is not None:
                 y = y + self.conditioner_projection_global(conditioner_global)
 
