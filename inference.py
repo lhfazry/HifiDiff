@@ -101,7 +101,7 @@ def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_samp
             spectrogram = spectrogram.unsqueeze(0)
         spectrogram = spectrogram.to(device)
 
-        if f0 is None:
+        if f0 is not None:
             if len(f0.shape) == 2:
                 f0 = f0.unsqueeze(0)
             f0 = f0.to(device)
