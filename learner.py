@@ -187,7 +187,7 @@ class PriorGradLearner:
             noise = noise * target_std
             noisy_audio = noise_scale_sqrt * audio + (1.0 - noise_scale) ** 0.5 * noise
 
-            if hasattr(param, 'use_f0') and param.use_f0:
+            if hasattr(self.params, 'use_f0') and self.params.use_f0:
                 predicted = self.model(noisy_audio, spectrogram, t, global_cond, f0)
             else:
                 predicted = self.model(noisy_audio, spectrogram, t, global_cond)
@@ -203,11 +203,11 @@ class PriorGradLearner:
                 else:
                     loss = nn.L1Loss()(noise, predicted.squeeze(1))
 
-            if hasattr(param, 'use_stft_loss') and param.use_stft_loss:
+            if hasattr(self.params, 'use_stft_loss') and self.params.use_stft_loss:
                 sc_loss, mag_loss = STFTLoss()(predicted.squeeze(1), noise)
                 loss += sc_loss + mag_loss
 
-            if hasattr(param, 'use_mstft_loss') and param.use_mstft_loss:
+            if hasattr(self.params, 'use_mstft_loss') and self.params.use_mstft_loss:
                 sc_loss, mag_loss = MultiResolutionSTFTLoss()(predicted.squeeze(1), noise)
                 loss += sc_loss + mag_loss
 
@@ -340,11 +340,19 @@ class PriorGradLearner:
                 c1 = 1 / alpha[n] ** 0.5
                 c2 = beta[n] / (1 - alpha_cum[n]) ** 0.5
                 if hasattr(self.model, 'module'):
-                    audio = c1 * (audio - c2 * self.model.module(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
+                    if hasattr(self.params, 'use_f0') and self.params.use_f0:
+                        audio = c1 * (audio - c2 * self.model.module(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
                                                                  global_cond, f0).squeeze(1))
+                    else:
+                        audio = c1 * (audio - c2 * self.model.module(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
+                                                                 global_cond).squeeze(1))
                 else:
-                    audio = c1 * (audio - c2 * self.model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
+                    if hasattr(self.params, 'use_f0') and self.params.use_f0:
+                        audio = c1 * (audio - c2 * self.model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
                                                           global_cond, f0).squeeze(1))
+                    else:
+                        audio = c1 * (audio - c2 * self.model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
+                                                          global_cond).squeeze(1))
                 if n > 0:
                     noise = torch.randn_like(audio) * target_std
                     sigma = ((1.0 - alpha_cum[n - 1]) / (1.0 - alpha_cum[n]) * beta[n]) ** 0.5

@@ -116,8 +116,12 @@ def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_samp
         for n in range(len(alpha) - 1, -1, -1):
             c1 = 1 / alpha[n] ** 0.5
             c2 = beta[n] / (1 - alpha_cum[n]) ** 0.5
-            audio = c1 * (audio - c2 * model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
+            if hasattr(model.params, 'use_f0') and model.params.use_f0:
+                audio = c1 * (audio - c2 * model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
                                              global_cond, f0).squeeze(1))
+            else:
+                audio = c1 * (audio - c2 * model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
+                                             global_cond).squeeze(1))
             if n > 0:
                 noise = torch.randn_like(audio) * target_std
                 sigma = ((1.0 - alpha_cum[n - 1]) / (1.0 - alpha_cum[n]) * beta[n]) ** 0.5
