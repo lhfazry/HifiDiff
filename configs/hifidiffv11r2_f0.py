@@ -71,5 +71,4 @@ params = AttrDict(
     
     model=43, #hifidiffv11r2
     use_f0=True,
-    use_harmonic=True,
 )

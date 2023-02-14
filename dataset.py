@@ -186,9 +186,8 @@ class Collator:
         audio = torch.stack([record['audio'] for record in minibatch if 'audio' in record])
         spectrogram = torch.stack([record['spectrogram'] for record in minibatch if 'spectrogram' in record])
         target_std = torch.stack([record['target_std'] for record in minibatch if 'target_std' in record])
+        f0 = torch.stack([record['f0'] for record in minibatch if 'f0' in record])
         filename = [record['filename'] for record in minibatch if 'filename' in record]
-        f0 = [record['f0'] for record in minibatch if 'f0' in record]
-        harmonic = [record['harmonic'] for record in minibatch if 'harmonic' in record]
 
         return {
             'audio': audio,
