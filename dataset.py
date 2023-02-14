@@ -153,6 +153,8 @@ class NumpyDataset(torch.utils.data.Dataset):
                 np.expand_dims(harmonic, axis=1)), axis=1), axis=1) * 0.95
             f0 = torch.from_numpy(f0).float().to(audio.device)
 
+            print(f"f0: {f0.shape}")
+
         return {
             'audio': audio, # [T_time]
             'spectrogram': spectrogram[0].T, # [T_mel, 80]
