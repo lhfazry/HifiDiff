@@ -104,6 +104,7 @@ def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_samp
         if f0 is not None:
             if len(f0.shape) == 2:
                 f0 = f0.unsqueeze(0)
+                
             f0 = f0.to(device)
 
         audio = torch.randn(spectrogram.shape[0], model.params.hop_samples * spectrogram.shape[-1],
