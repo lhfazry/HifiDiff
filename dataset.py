@@ -151,6 +151,7 @@ class NumpyDataset(torch.utils.data.Dataset):
 
             f0 = normalize(np.concatenate((np.expand_dims(pitch, axis=0), 
                 np.expand_dims(harmonic, axis=0))), axis=1) * 0.95
+            f0 = torch.from_numpy(f0).float().to(audio.device)
 
         return {
             'audio': audio, # [T_time]
