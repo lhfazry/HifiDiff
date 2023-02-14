@@ -162,7 +162,6 @@ class PriorGradLearner:
         spectrogram = features['spectrogram']
         target_std = features['target_std']
         f0 = features['f0']
-        harmonic = features['harmonic']
 
         if self.condition_prior:
             target_std_specdim = target_std[:, ::self.params.hop_samples].unsqueeze(1)
@@ -187,7 +186,7 @@ class PriorGradLearner:
             noisy_audio = noise_scale_sqrt * audio + (1.0 - noise_scale) ** 0.5 * noise
 
             if hasattr(param, 'use_f0') and param.use_f0:
-                predicted = self.model(noisy_audio, spectrogram, t, global_cond, f0, harmonic)
+                predicted = self.model(noisy_audio, spectrogram, t, global_cond, f0)
             else:
                 predicted = self.model(noisy_audio, spectrogram, t, global_cond)
 
@@ -233,7 +232,6 @@ class PriorGradLearner:
                 spectrogram = features['spectrogram']
                 target_std = features['target_std']
                 f0 = features['f0']
-                harmonic = features['harmonic']
 
                 if self.condition_prior:
                     target_std_specdim = target_std[:, ::self.params.hop_samples].unsqueeze(1)
@@ -262,7 +260,7 @@ class PriorGradLearner:
                 #    predicted = self.model(noisy_audio, spectrogram, t, global_cond)
 
                 if hasattr(self.params, 'use_f0') and self.params.use_f0:
-                    predicted = self.model(noisy_audio, spectrogram, t, global_cond, f0, harmonic)
+                    predicted = self.model(noisy_audio, spectrogram, t, global_cond, f0)
                 else:
                     predicted = self.model(noisy_audio, spectrogram, t, global_cond)
 
@@ -287,7 +285,7 @@ class PriorGradLearner:
 
                 losses.append(loss.cpu().numpy())
 
-                audio_pred = self.predict(spectrogram, target_std, global_cond)
+                audio_pred = self.predict(spectrogram, target_std, global_cond, f0)
                 audio_preds.append(audio_pred.cpu().numpy())
 
                 loss_l1 = torch.nn.L1Loss()(get_mel(audio_pred.squeeze(0), self.params), spectrogram).item()

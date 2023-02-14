@@ -66,7 +66,7 @@ def restore_from_checkpoint(model, model_dir, step, filename='weights'):
         print("Loaded {} from {} step checkpoint".format(f'{model_dir}/{filename}.pt', step))
         return model, step
 
-def predict(model, spectrogram, target_std, global_cond=None, fast_sampling=True):
+def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_sampling=True):
     with torch.no_grad():
         # Change in notation from the Diffwave paper for fast sampling.
         # DiffWave paper -> Implementation below
@@ -101,6 +101,10 @@ def predict(model, spectrogram, target_std, global_cond=None, fast_sampling=True
             spectrogram = spectrogram.unsqueeze(0)
         spectrogram = spectrogram.to(device)
 
+        if len(f0.shape) == 2:
+            f0 = f0.unsqueeze(0)
+        f0 = f0.to(device)
+
         audio = torch.randn(spectrogram.shape[0], model.params.hop_samples * spectrogram.shape[-1],
                             device=device) * target_std
         noise_scale = torch.from_numpy(alpha_cum ** 0.5).float().unsqueeze(1).to(device)
@@ -113,7 +117,7 @@ def predict(model, spectrogram, target_std, global_cond=None, fast_sampling=True
             c1 = 1 / alpha[n] ** 0.5
             c2 = beta[n] / (1 - alpha_cum[n]) ** 0.5
             audio = c1 * (audio - c2 * model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
-                                             global_cond).squeeze(1))
+                                             global_cond, f0).squeeze(1))
             if n > 0:
                 noise = torch.randn_like(audio) * target_std
                 sigma = ((1.0 - alpha_cum[n - 1]) / (1.0 - alpha_cum[n]) * beta[n]) ** 0.5
@@ -180,6 +184,7 @@ def main(args):
             audio_gt = features['audio']
             spectrogram = features['spectrogram']
             target_std = features['target_std']
+            f0 = features['f0']
 
             if params.condition_prior:
                 target_std_specdim = target_std[:, ::params.hop_samples].unsqueeze(1)
@@ -191,7 +196,8 @@ def main(args):
             else:
                 global_cond = None
 
-        audio, predict_time = predict(model, spectrogram, target_std, global_cond=global_cond, fast_sampling=args.fast)
+        audio, predict_time = predict(model, spectrogram, target_std, global_cond=global_cond, f0=f0, 
+            fast_sampling=args.fast)
         total_time += predict_time
 
         #sample_name = "{:04d}.wav".format(i + 1)
