@@ -118,23 +118,23 @@ class ResidualBlock(nn.Module):
         diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
         conditioner = self.conditioner_projection(conditioner)
 
-        print(f"x: {x.shape}")
-        print(f"diffusion_step: {diffusion_step.shape}")
-        
+        #print(f"x: {x.shape}")
+        #print(f"diffusion_step: {diffusion_step.shape}")
+
         y = x + diffusion_step
 
         if index % 2 == 0:
             y = self.dilated_conv(y) + conditioner
 
-            #print(f"y: {y.shape}")
-            #print(f"conditioner: {conditioner.shape}")
+            print(f"y: {y.shape}")
+            print(f"conditioner: {conditioner.shape}")
 
             if conditioner_global is not None:
                 y = y + self.conditioner_projection_global(conditioner_global)
 
             if f0 is not None:
                 f0 = self.f0_projection(f0)
-                #print(f"f0: {f0.shape}")
+                print(f"f0: {f0.shape}")
 
                 y = y + f0
         else:
@@ -204,14 +204,14 @@ class HifiDiffV11R2(nn.Module):
         x = self.input_projection(x)
         x = F.relu(x)
 
-        print(f"Audio: {audio.shape}")
-        print(f"spectrogram: {spectrogram.shape}")
-        print(f"f0: {f0.shape}")
+        #print(f"Audio: {audio.shape}")
+        #print(f"spectrogram: {spectrogram.shape}")
+        #print(f"f0: {f0.shape}")
 
         diffusion_step = self.diffusion_embedding(diffusion_step)
         spectrogram = self.spectrogram_upsampler(spectrogram)
 
-        print(f"diffusion_step: {diffusion_step.shape}")
+        #print(f"diffusion_step: {diffusion_step.shape}")
 
         if f0 is not None:
             f0 = self.f0_upsampler(f0)

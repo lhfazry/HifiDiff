@@ -163,8 +163,8 @@ class PriorGradLearner:
         target_std = features['target_std']
         f0 = features['f0']
 
-        print(f"F0: {f0.shape}")
-        print(f"spectrogram: {spectrogram.shape}")
+        #print(f"F0: {f0.shape}")
+        #print(f"spectrogram: {spectrogram.shape}")
 
         if self.condition_prior:
             target_std_specdim = target_std[:, ::self.params.hop_samples].unsqueeze(1)
