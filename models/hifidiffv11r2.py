@@ -48,6 +48,10 @@ def Conv1d(*args, **kwargs):
 def silu(x):
     return x * torch.sigmoid(x)
 
+@torch.jit.script
+def mish(x):
+    return x * torch.tanh(F.softplus(x, beta=1, threshold=20))
+
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
         super().__init__()
@@ -136,7 +140,7 @@ class ResidualBlock(nn.Module):
                 f0 = self.f0_projection(f0)
                 #print(f"f0: {f0.shape}")
 
-                y = y + f0
+                y = mish(y) + f0
         else:
             y = self.dilated_conv(y) * conditioner
 
@@ -144,7 +148,7 @@ class ResidualBlock(nn.Module):
                 y = y * self.conditioner_projection_global(conditioner_global)
 
             if f0 is not None:
-                y = y * self.f0_projection(f0)
+                y = mish(y) * self.f0_projection(f0)
 
         y = torch.tanh(y)
 
