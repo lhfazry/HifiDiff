@@ -148,8 +148,8 @@ class NumpyDataset(torch.utils.data.Dataset):
                                                         low_freq=50,
                                                         high_freq=1000,
                                                         harmonic_threshold=0.85)
-            f0 = torch.nn.functional.normalize(f0, dim=0)
-            harmonic = torch.nn.functional.normalize(harmonic, dim=0)
+            f0 = normalize(f0) * 0.95
+            harmonic = normalize(harmonic) * 0.95
 
         return {
             'audio': audio, # [T_time]
