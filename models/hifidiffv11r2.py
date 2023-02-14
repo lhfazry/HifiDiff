@@ -206,7 +206,7 @@ class HifiDiffV11R2(nn.Module):
     def forward(self, audio, spectrogram, diffusion_step, global_cond=None, f0=None, **kwargs):
         x = audio.unsqueeze(1)
         x = self.input_projection(x)
-        x = F.relu(x)
+        x = mish(x)
 
         #print(f"Audio: {audio.shape}")
         #print(f"spectrogram: {spectrogram.shape}")
@@ -231,7 +231,7 @@ class HifiDiffV11R2(nn.Module):
 
         x = torch.sum(torch.stack(skip), dim=0) / sqrt(len(self.residual_layers))
         x = self.skip_projection(x)
-        x = F.relu(x)
+        x = mish(x)
         x = self.output_projection(x)
         
         return x
