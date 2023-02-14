@@ -125,12 +125,15 @@ class ResidualBlock(nn.Module):
 
             print(f"y: {y.shape}")
             print(f"conditioner: {conditioner.shape}")
-            
+
             if conditioner_global is not None:
                 y = y + self.conditioner_projection_global(conditioner_global)
 
             if f0 is not None:
-                y = y + self.f0_projection(f0)
+                f0 = self.f0_projection(f0)
+                print(f"f0: {f0.shape}")
+                
+                y = y + f0
         else:
             y = self.dilated_conv(y) * conditioner
 
