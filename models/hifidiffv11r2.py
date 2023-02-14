@@ -118,6 +118,9 @@ class ResidualBlock(nn.Module):
         diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
         conditioner = self.conditioner_projection(conditioner)
 
+        print(f"x: {x.shape}")
+        print(f"diffusion_step: {diffusion_step.shape}")
+        
         y = x + diffusion_step
 
         if index % 2 == 0:
