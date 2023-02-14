@@ -130,7 +130,6 @@ def get_mel_f0(audio, params, center=False):
     spec = torch.matmul(mel_basis[str(fmax)+'_'+str(y.device)], spec)
     spec = spectral_normalize_torch(spec)
 
-    print(f"y: {y.shape}")
     assert len(y.squeeze(0).shape) == 1
     pitch, harmonic, _, _  = ff.compute_yin(y.squeeze(0).cpu().numpy(), sampling_rate, 
                                                 win_len=win_size,
@@ -138,11 +137,14 @@ def get_mel_f0(audio, params, center=False):
                                                 low_freq=50,
                                                 high_freq=1000,
                                                 harmonic_threshold=0.85)
-    print(f"pitch: {pitch.shape}")
-    print(f"harmonic: {harmonic.shape}")
 
-    f0 = normalize(np.concatenate((np.expand_dims(pitch, axis=0), 
-                np.expand_dims(harmonic, axis=0))), axis=1) * 0.95
+    assert len(pitch.shape) == 1
+    assert len(harmonic.shape) == 1
+
+    f0 = np.concatenate((np.expand_dims(pitch, axis=0), np.expand_dims(harmonic, axis=0)))
+    assert f0.shape[0] == 2
+    
+    f0 = normalize(f0, axis=1) * 0.95
     f0 = torch.from_numpy(f0).float().to(y.device)
 
     return spec, f0
