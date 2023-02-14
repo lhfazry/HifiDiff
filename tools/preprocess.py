@@ -130,7 +130,6 @@ def get_mel_f0(audio, params, center=False):
     spec = torch.matmul(mel_basis[str(fmax)+'_'+str(y.device)], spec)
     spec = spectral_normalize_torch(spec)
 
-    print()
     pitch, harmonic, _, _  = ff.compute_yin(y.squeeze(0), sampling_rate, 
                                                 win_len=win_size,
                                                 win_hop=hop_size,
