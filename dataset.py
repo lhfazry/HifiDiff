@@ -149,7 +149,8 @@ class NumpyDataset(torch.utils.data.Dataset):
                                                         high_freq=1000,
                                                         harmonic_threshold=0.85)
 
-            f0 = normalize(np.concatenate((pitch, harmonic), axis=0), axis=1) * 0.95
+            f0 = normalize(np.concatenate((np.expand_dims(pitch, axis=0), 
+                np.expand_dims(harmonic, axis=0))), axis=1) * 0.95
 
         return {
             'audio': audio, # [T_time]
