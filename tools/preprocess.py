@@ -137,7 +137,8 @@ def get_mel_f0(audio, params, center=False):
                                                 low_freq=50,
                                                 high_freq=1000,
                                                 harmonic_threshold=0.85)
-
+    print(f"pitch: {pitch.shape}")
+    print(f"harmonic: {harmonic.shape}")
     f0 = normalize(np.concatenate((np.expand_dims(pitch, axis=0), 
                 np.expand_dims(harmonic, axis=0))), axis=1) * 0.95
     f0 = torch.from_numpy(f0).float().to(y.device)
