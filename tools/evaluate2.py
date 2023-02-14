@@ -50,7 +50,7 @@ def main(args):
                            device='cuda:0')
 
         #print(f"pitch1: {pitch1.shape}, pitch2: {pitch2.shape}")
-        pitch += torch.mean(1200 * torch.log2(pitch1 / pitch2))
+        pitch += torch.mean(1200 * torch.log2(pitch2 / pitch1))
         periodicity += torch.sqrt(torch.nn.functional.mse_loss(periodicity1, periodicity2))
     
     print(f"MCD: {mcds/total}")
