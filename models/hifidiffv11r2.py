@@ -204,9 +204,9 @@ class HifiDiffV11R2(nn.Module):
         x = self.input_projection(x)
         x = F.relu(x)
 
-        #print(f"Audio: {audio.shape}")
-        #print(f"spectrogram: {spectrogram.shape}")
-        #print(f"f0: {f0.shape}")
+        print(f"Audio: {audio.shape}")
+        print(f"spectrogram: {spectrogram.shape}")
+        print(f"f0: {f0.shape}")
 
         diffusion_step = self.diffusion_embedding(diffusion_step)
         spectrogram = self.spectrogram_upsampler(spectrogram)
