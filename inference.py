@@ -104,7 +104,7 @@ def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_samp
         if f0 is not None:
             if len(f0.shape) == 2:
                 f0 = f0.unsqueeze(0)
-                
+
             f0 = f0.to(device)
 
         audio = torch.randn(spectrogram.shape[0], model.params.hop_samples * spectrogram.shape[-1],
@@ -208,7 +208,7 @@ def main(args):
 
         #sample_name = "{:04d}.wav".format(i + 1)
         sample_name = Path(features['filename'][0]).name
-        torchaudio.save(os.path.join(sample_path, sample_name), audio.cpu(), sample_rate=model.params.sample_rate)
+        torchaudio.save(os.path.join(sample_path, sample_name), audio.cpu(), sample_rate=params.sample_rate)
     
     print(f"time: {total_time / len(dataset_test)}\n\n")
 
