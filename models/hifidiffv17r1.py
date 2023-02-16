@@ -104,8 +104,8 @@ class SpectrogramUpsampler(nn.Module):
 class ResidualBlock(nn.Module):
     def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
         super().__init__()
-        self.dilated_conv = Conv1d(residual_channels, residual_channels, 3, padding=dilation, dilation=dilation)
-        self.dilated_conv2 = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
+        self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
+        self.dilated_conv2 = Conv1d(2 * residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
         self.diffusion_projection = Linear(512, residual_channels)
         self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
         if n_cond_global is not None:
@@ -117,20 +117,19 @@ class ResidualBlock(nn.Module):
         conditioner = self.conditioner_projection(conditioner)
 
         y = x + diffusion_step
-        y = self.dilated_conv(y)
-        y = F.relu(y) + x
-        
-        z = self.dilated_conv2(y) + conditioner
+        y = self.dilated_conv(y) + conditioner
 
         if conditioner_global is not None:
-            z = z + self.conditioner_projection_global(conditioner_global)
+            y = y + self.conditioner_projection_global(conditioner_global)
 
-        gate, filter = torch.chunk(z, 2, dim=1)
-        z = torch.sigmoid(gate) * torch.tanh(filter)
+        y = self.dilated_conv2(y) 
 
-        z = self.output_projection(z)
-        residual, skip = torch.chunk(z, 2, dim=1)
-        return (y + residual) / sqrt(2.0), skip
+        gate, filter = torch.chunk(y, 2, dim=1)
+        y = torch.sigmoid(gate) * torch.tanh(filter)
+
+        y = self.output_projection(y)
+        residual, skip = torch.chunk(y, 2, dim=1)
+        return (x + residual) / sqrt(2.0), skip
 
 
 class HifiDiffV17R1(nn.Module):
