@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -q GPU-1A
-#PBS -N hifidiffv11r2
+#PBS -N hifidiffv9r6
 #PBS -l select=1:ngpus=1
 #PBS -j oe
 #PBS -M s2212015@jaist.ac.jp -m be
