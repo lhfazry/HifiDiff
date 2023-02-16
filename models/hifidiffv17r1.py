@@ -120,17 +120,17 @@ class ResidualBlock(nn.Module):
         y = self.dilated_conv(y)
         y = F.relu(y) + x
         
-        y = self.dilated_conv2(y) + conditioner
+        z = self.dilated_conv2(y) + conditioner
 
         if conditioner_global is not None:
-            y = y + self.conditioner_projection_global(conditioner_global)
+            z = z + self.conditioner_projection_global(conditioner_global)
 
-        gate, filter = torch.chunk(y, 2, dim=1)
-        y = torch.sigmoid(gate) * torch.tanh(filter)
+        gate, filter = torch.chunk(z, 2, dim=1)
+        z = torch.sigmoid(gate) * torch.tanh(filter)
 
-        y = self.output_projection(y)
-        residual, skip = torch.chunk(y, 2, dim=1)
-        return (x + residual) / sqrt(2.0), skip
+        z = self.output_projection(z)
+        residual, skip = torch.chunk(z, 2, dim=1)
+        return (z + residual) / sqrt(2.0), skip
 
 
 class HifiDiffV17R1(nn.Module):
