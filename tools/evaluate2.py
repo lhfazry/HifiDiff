@@ -42,11 +42,11 @@ def main(args):
         #print(f"Audio1: {audio1.shape}, Audio2: {audio2.shape}")
 
         pitch1, periodicity1 = torchcrepe.predict(audio1, sr1, 256, 50, 550,
-                           'tiny', return_periodicity=True, batch_size=1024,
+                           'full', return_periodicity=True, batch_size=1024,
                            device='cuda:0')
         
         pitch2, periodicity2 = torchcrepe.predict(audio2, sr2, 256, 50, 550,
-                           'tiny', return_periodicity=True, batch_size=1024,
+                           'full', return_periodicity=True, batch_size=1024,
                            device='cuda:0')
 
         #print(f"pitch1: {pitch1.shape}, pitch2: {pitch2.shape}")
