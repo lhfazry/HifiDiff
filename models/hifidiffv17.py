@@ -133,7 +133,7 @@ class ResidualBlock(nn.Module):
         return (x + residual) / sqrt(2.0), skip
 
 
-class HifiDiffV16(nn.Module):
+class HifiDiffV17(nn.Module):
     def __init__(self, params):
         super().__init__()
         self.params = params
