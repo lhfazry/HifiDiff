@@ -86,8 +86,8 @@ class SpectrogramUpsampler(nn.Module):
         super().__init__()
         self.conv1 = ConvTranspose2d(1, 1, [3, 32], stride=[1, 16], padding=[1, 8])
         self.conv2 = ConvTranspose2d(1, 1, [3, 32], stride=[1, 16], padding=[1, 8])
-        self.prelu1 = torch.nn.PReLU(n_mels)
-        self.prelu2 = torch.nn.PReLU(n_mels)
+        self.prelu1 = torch.nn.PReLU()
+        self.prelu2 = torch.nn.PReLU()
 
     def forward(self, x):
         x = torch.unsqueeze(x, 1)
