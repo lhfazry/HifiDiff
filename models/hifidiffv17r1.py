@@ -118,9 +118,9 @@ class ResidualBlock(nn.Module):
 
         y = x + diffusion_step
         y = self.dilated_conv(y)
-        y = F.relu(y) + x
+        z = F.relu(y) + x
         
-        z = self.dilated_conv2(y) + conditioner
+        z = self.dilated_conv2(z) + conditioner
 
         if conditioner_global is not None:
             z = z + self.conditioner_projection_global(conditioner_global)
