@@ -535,3 +535,23 @@ CUDA_VISIBLE_DEVICES=0 python __main__.py \
     --max_steps 2500 --validate_loop 250 --save_ckpt_loop 2500 >> logs/hifidiffv11r4_mstft.log 2>&1 && CUDA_VISIBLE_DEVICES=0 python inference.py checkpoints/hifidiffv11r4_mstft /workspace/LJSpeech-1.1 filelists/test.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv11r4_mstft.log && CUDA_VISIBLE_DEVICES=0 python inference.py checkpoints/hifidiffv11r4_mstft /workspace/indsp filelists/indsp_test22k.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv11r4_mstft.log 2>&1 &
 
 CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix LJ --sdir=checkpoints/sample_slow/hifidiffv11r4_mstft_step2500 --odir=/workspace/LJSpeech-1.1/wavs && CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix SPK00_F_ --sdir=checkpoints/sample_slow/hifidiffv11r4_mstft_step2500 --odir=/workspace/indsp/SPK00_000022k/
+
+37. hifidiffv15
+CUDA_VISIBLE_DEVICES=0 python __main__.py \
+    configs/hifidiffv15.py \
+    checkpoints/hifidiffv15 \
+    /workspace/LJSpeech-1.1 \
+    filelists/train.txt \
+    --max_steps 2500 --validate_loop 250 --save_ckpt_loop 2500 >> logs/hifidiffv15.log 2>&1 && CUDA_VISIBLE_DEVICES=0 python inference.py checkpoints/hifidiffv15 /workspace/LJSpeech-1.1 filelists/test.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv15.log && CUDA_VISIBLE_DEVICES=0 python inference.py checkpoints/hifidiffv15 /workspace/indsp filelists/indsp_test22k.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv15.log 2>&1 &
+
+CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix LJ --sdir=checkpoints/sample_slow/hifidiffv15_step2500 --odir=/workspace/LJSpeech-1.1/wavs && CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix SPK00_F_ --sdir=checkpoints/sample_slow/hifidiffv15_step2500 --odir=/workspace/indsp/SPK00_000022k/
+
+38. hifidiffv15r1
+CUDA_VISIBLE_DEVICES=0 python __main__.py \
+    configs/hifidiffv15r1.py \
+    checkpoints/hifidiffv15r1 \
+    /workspace/LJSpeech-1.1 \
+    filelists/train.txt \
+    --max_steps 2500 --validate_loop 250 --save_ckpt_loop 2500 >> logs/hifidiffv15r1.log 2>&1 && CUDA_VISIBLE_DEVICES=0 python inference.py checkpoints/hifidiffv15r1 /workspace/LJSpeech-1.1 filelists/test.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv15r1.log && CUDA_VISIBLE_DEVICES=0 python inference.py checkpoints/hifidiffv15r1 /workspace/indsp filelists/indsp_test22k.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv15r1.log 2>&1 &
+
+CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix LJ --sdir=checkpoints/sample_slow/hifidiffv15r1_step2500 --odir=/workspace/LJSpeech-1.1/wavs && CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix SPK00_F_ --sdir=checkpoints/sample_slow/hifidiffv15r1_step2500 --odir=/workspace/indsp/SPK00_000022k/
