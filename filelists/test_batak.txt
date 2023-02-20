@@ -1,4 +1,3 @@
-/workspace/indsp/Ind001_F_Btk/
 /workspace/indsp/Ind001_F_Btk/Ind001_F_Btk_C_news_0001.wav
 /workspace/indsp/Ind001_F_Btk/Ind001_F_Btk_C_news_0002.wav
 /workspace/indsp/Ind001_F_Btk/Ind001_F_Btk_C_news_0003.wav
