@@ -4,12 +4,12 @@ import subprocess
 import sys
 import glob
 import librosa
-from preprocess import get_mel
+from tools.preprocess import get_mel
 import numpy as np
 import torch
 from nnmnkwii.metrics import melcd
 from argparse import ArgumentParser
-from preprocess import MAX_WAV_VALUE, get_mel, normalize
+from tools.preprocess import MAX_WAV_VALUE, get_mel, normalize
 from params import params
 from scipy.io.wavfile import read
 import pyworld
