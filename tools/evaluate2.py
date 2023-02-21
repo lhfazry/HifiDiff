@@ -21,7 +21,7 @@ def mean_confidence_interval(data, confidence=0.95):
     n = len(a)
     m, se = np.mean(a), scipy.stats.sem(a)
     h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
-    return m, m-h, m+h
+    return m, h
 
 def main(args):
     mcds = []
@@ -64,7 +64,6 @@ def main(args):
     print(f"Pitch: {mean_confidence_interval(pitches)}")
     print(f"Periodicity: {mean_confidence_interval(periodicities)}")
 
-    
 if __name__ == '__main__':
     parser = ArgumentParser(description='Calculate MCD')
     parser.add_argument('--sdir', help='Synthetic directory of waveform')
