@@ -60,9 +60,13 @@ def main(args):
         pitches.append(torch.abs(torch.mean(1200 * torch.log2(pitch2 / pitch1))).cpu().numpy())
         periodicities.append(torch.sqrt(torch.nn.functional.mse_loss(periodicity1, periodicity2)).cpu().numpy())
     
-    print(f"MCD: {mean_confidence_interval(mcds)}")
-    print(f"Pitch: {mean_confidence_interval(pitches)}")
-    print(f"Periodicity: {mean_confidence_interval(periodicities)}")
+    m_mcd = mean_confidence_interval(mcds)
+    m_pitches = mean_confidence_interval(pitches)
+    m_periodicities = mean_confidence_interval(periodicities)
+
+    print(f"MCD: {m_mcd[0]} \u00b1 {m_mcd[1]}")
+    print(f"Pitch: {m_pitches[0]} \u00b1 {m_pitches[0]}")
+    print(f"Periodicity: {m_periodicities[0]} \u00b1 {m_periodicities[1]}\n")
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Calculate MCD')
