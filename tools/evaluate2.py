@@ -14,12 +14,19 @@ from mel_cepstral_distance import get_metrics_wavs, get_metrics_mels
 from glob import glob
 import torchcrepe
 import torch
+import scipy.stats
 
+def mean_confidence_interval(data, confidence=0.95):
+    a = 1.0 * np.array(data)
+    n = len(a)
+    m, se = np.mean(a), scipy.stats.sem(a)
+    h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
+    return m, m-h, m+h
 
 def main(args):
-    mcds = 0
-    pitch = 0
-    periodicity = 0
+    mcds = []
+    pitches = []
+    periodicities = []
     total = 0
     sr = 22050
 
@@ -27,7 +34,7 @@ def main(args):
         mcd, penalty, _ = get_metrics_wavs(Path(fname), 
             Path(os.path.join(args.odir, Path(fname).name)))
 
-        mcds += mcd
+        mcds.append(mcd)
         total += 1
         
         audio1, sr1 = torchcrepe.load.audio(fname)
@@ -50,12 +57,12 @@ def main(args):
                            device='cuda:0')
 
         #print(f"pitch1: {pitch1.shape}, pitch2: {pitch2.shape}")
-        pitch += torch.mean(1200 * torch.log2(pitch2 / pitch1))
-        periodicity += torch.sqrt(torch.nn.functional.mse_loss(periodicity1, periodicity2))
+        pitches.append(torch.abs(torch.mean(1200 * torch.log2(pitch2 / pitch1))).cpu().numpy())
+        periodicities.append(torch.sqrt(torch.nn.functional.mse_loss(periodicity1, periodicity2)).cpu().numpy())
     
-    print(f"MCD: {mcds/total}")
-    print(f"Pitch: {pitch/total}")
-    print(f"Periodicity: {periodicity/total}")
+    print(f"MCD: {mean_confidence_interval(mcds)}")
+    print(f"Pitch: {mean_confidence_interval(pitches)}")
+    print(f"Periodicity: {mean_confidence_interval(periodicities)}")
 
     
 if __name__ == '__main__':

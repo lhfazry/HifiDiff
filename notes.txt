@@ -44,7 +44,8 @@ CUDA_VISIBLE_DEVICES=7 python tools/evaluate2.py --prefix SPK00_F_ --sdir=checkp
 
 CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix LJ --sdir=checkpoints/sample_slow/diffwave_step2500 --odir=/workspace/LJSpeech-1.1/wavs && CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix SPK00_F_ --sdir=checkpoints/sample_slow/diffwave_step2500 --odir=/workspace/indsp/SPK00_000022k/
 
-
+CUDA_VISIBLE_DEVICES=6 python tools/evaluate2.py --prefix Ind001_F_Bli --sdir=checkpoints/sample_slow/diffwave_step1000000 --odir=/workspace/indsp/Ind001_F_Bli/
+CUDA_VISIBLE_DEVICES=6 python tools/evaluate2.py --prefix Ind002_M_Bli --sdir=checkpoints/sample_slow/diffwave_step1000000 --odir=/workspace/indsp/Ind002_M_Bli/
 
 1. hifidiff_c5_k3_c64_d0
 CUDA_VISIBLE_DEVICES=5 python __main__.py \
@@ -610,7 +611,8 @@ CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix LJ --sdir=checkpoints/
 CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix LJ --sdir=checkpoints/sample_slow/hifidiffv16r1_step500000 --odir=/workspace/LJSpeech-1.1/wavs && CUDA_VISIBLE_DEVICES=0 python tools/evaluate2.py --prefix SPK00_F_ --sdir=checkpoints/sample_slow/hifidiffv16r1_step500000 --odir=/workspace/indsp/SPK00_000022k/
 
 
-CUDA_VISIBLE_DEVICES=6 python tools/evaluate2.py --prefix Ind00 --sdir=checkpoints/sample_slow/hifidiffv16r1_step1000000 --odir=/workspace/indsp/SPK00_000022k/
+CUDA_VISIBLE_DEVICES=6 python tools/evaluate2.py --prefix Ind001_F_Bli --sdir=checkpoints/sample_slow/hifidiffv16r1_step1000000 --odir=/workspace/indsp/Ind001_F_Bli/
+CUDA_VISIBLE_DEVICES=6 python tools/evaluate2.py --prefix Ind002_M_Bli --sdir=checkpoints/sample_slow/hifidiffv16r1_step1000000 --odir=/workspace/indsp/Ind002_M_Bli/
 
 
 CUDA_VISIBLE_DEVICES=6 python inference.py checkpoints/hifidiffv16r1 /workspace/indsp filelists/test_bali.txt --step 1000000 --fast_iter 50 >> logs/inferences/hifidiffv16r1.log 2>&1 && CUDA_VISIBLE_DEVICES=6 python inference.py checkpoints/hifidiffv16r1 /workspace/indsp filelists/test_batak.txt --step 1000000 --fast_iter 50 >> logs/inferences/hifidiffv16r1.log 2>&1 && CUDA_VISIBLE_DEVICES=6 python inference.py checkpoints/hifidiffv16r1 /workspace/indsp filelists/test_jawa.txt --step 1000000 --fast_iter 50 >> logs/inferences/hifidiffv16r1.log 2>&1 && CUDA_VISIBLE_DEVICES=6 python inference.py checkpoints/hifidiffv16r1 /workspace/indsp filelists/test_sunda.txt --step 1000000 --fast_iter 50 >> logs/inferences/hifidiffv16r1.log 2>&1 &
