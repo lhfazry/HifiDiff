@@ -65,7 +65,7 @@ def main(args):
     m_periodicities = mean_confidence_interval(periodicities)
 
     print(f"MCD: {m_mcd[0]} \u00b1 {m_mcd[1]}")
-    print(f"Pitch: {m_pitches[0]} \u00b1 {m_pitches[0]}")
+    print(f"Pitch: {m_pitches[0]} \u00b1 {m_pitches[1]}")
     print(f"Periodicity: {m_periodicities[0]} \u00b1 {m_periodicities[1]}\n")
 
 if __name__ == '__main__':
