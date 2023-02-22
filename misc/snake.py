@@ -47,7 +47,7 @@ class Snake(nn.Module):
         # Initialize `a`
         if a is not None:
             self.a = Parameter(torch.ones(self.in_features) * a) # create a tensor out of alpha
-        else:            
+        else:
             m = Exponential(torch.tensor([0.1]))
             self.a = Parameter((m.rsample(self.in_features)).squeeze()) # random init = mix of frequencies
 

@@ -31,7 +31,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+from einops import rearrange
+from misc.snake import Snake
 from math import sqrt
 
 Linear = nn.Linear
@@ -77,7 +78,7 @@ class DiffusionEmbedding(nn.Module):
         steps = torch.arange(max_steps).unsqueeze(1)  # [T,1]
         dims = torch.arange(64).unsqueeze(0)  # [1,64]
         table = steps * 10.0 ** (dims * 4.0 / 63.0)  # [T,64]
-        table = torch.cat([torch.sin(table), torch.cos(table)], dim=1)
+        table = torch.cat([torch.sin(table), torch.cos(table)], dim=1) # [T,128]
         return table
 
 
@@ -86,18 +87,15 @@ class SpectrogramUpsampler(nn.Module):
         super().__init__()
         self.conv1 = ConvTranspose2d(1, 1, [3, 32], stride=[1, 16], padding=[1, 8])
         self.conv2 = ConvTranspose2d(1, 1, [3, 32], stride=[1, 16], padding=[1, 8])
-        self.prelu1 = torch.nn.PReLU()
-        self.prelu2 = torch.nn.PReLU()
 
     def forward(self, x):
-        x = torch.unsqueeze(x, 1)
+        # x ==> B, 80, H
+        x = torch.unsqueeze(x, 1) # B, 1, 80, H
         x = self.conv1(x)
-        #x = F.leaky_relu(x, 0.4)
-        x = self.prelu1(x)
+        x = F.leaky_relu(x, 0.4)
         x = self.conv2(x)
-        #x = F.leaky_relu(x, 0.4)
-        x = self.prelu2(x)
-        x = torch.squeeze(x, 1)
+        x = F.leaky_relu(x, 0.4)
+        x = torch.squeeze(x, 1) # B, 80, T
         return x
 
 
@@ -105,7 +103,6 @@ class ResidualBlock(nn.Module):
     def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
         super().__init__()
         self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
-        self.dilated_conv2 = Conv1d(2 * residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
         self.diffusion_projection = Linear(512, residual_channels)
         self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
         if n_cond_global is not None:
@@ -113,6 +110,7 @@ class ResidualBlock(nn.Module):
         self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
 
     def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
+        # x ==> (b d), c, t
         diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
         conditioner = self.conditioner_projection(conditioner)
 
@@ -122,8 +120,6 @@ class ResidualBlock(nn.Module):
         if conditioner_global is not None:
             y = y + self.conditioner_projection_global(conditioner_global)
 
-        y = self.dilated_conv2(y) 
-
         gate, filter = torch.chunk(y, 2, dim=1)
         y = torch.sigmoid(gate) * torch.tanh(filter)
 
@@ -131,8 +127,66 @@ class ResidualBlock(nn.Module):
         residual, skip = torch.chunk(y, 2, dim=1)
         return (x + residual) / sqrt(2.0), skip
 
+class HFResidualBlock(nn.Module):
+    def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
+        super().__init__()
+        self.dilated_conv = Conv1d(residual_channels, residual_channels, 3, padding=dilation, dilation=dilation)
+        self.diffusion_projection = Linear(512, residual_channels)
+        self.conditioner_projection = Conv1d(n_mels, residual_channels, 1)
+        if n_cond_global is not None:
+            self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
+        self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
+        self.snake = Snake([1])
 
-class HifiDiffV17R1(nn.Module):
+    def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
+        # x ==> (b d), c, t
+        diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
+        conditioner = self.conditioner_projection(conditioner)
+
+        y = x + diffusion_step
+        y = self.dilated_conv(y) + conditioner
+
+        if conditioner_global is not None:
+            y = y + self.conditioner_projection_global(conditioner_global)
+
+        #gate, filter = torch.chunk(y, 2, dim=1)
+        #y = torch.sigmoid(gate) * torch.tanh(filter)
+        y = snake(y)
+
+        y = self.output_projection(y)
+        residual, skip = torch.chunk(y, 2, dim=1)
+        return (x + residual) / sqrt(2.0), skip
+
+class LFResidualBlock(nn.Module):
+    def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
+        super().__init__()
+        self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
+        self.diffusion_projection = Linear(512, residual_channels)
+        self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
+        if n_cond_global is not None:
+            self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
+        self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
+
+    def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
+        # x ==> (b d), c, t
+        diffusion_step = self.diffusion_projection(diffusion_step).unsqueeze(-1)
+        conditioner = self.conditioner_projection(conditioner)
+
+        y = x + diffusion_step
+        y = self.dilated_conv(y) + conditioner
+
+        if conditioner_global is not None:
+            y = y + self.conditioner_projection_global(conditioner_global)
+
+        gate, filter = torch.chunk(y, 2, dim=1)
+        y = torch.sigmoid(gate) * torch.tanh(filter)
+
+        y = self.output_projection(y)
+        residual, skip = torch.chunk(y, 2, dim=1)
+        return x + residual, skip
+
+
+class HifiDiffV18(nn.Module):
     def __init__(self, params):
         super().__init__()
         self.params = params
@@ -155,50 +209,67 @@ class HifiDiffV17R1(nn.Module):
         self.input_projection = Conv1d(1, params.residual_channels, 1)
         self.diffusion_embedding = DiffusionEmbedding(len(params.noise_schedule))
         self.spectrogram_upsampler = SpectrogramUpsampler(self.n_mels)
+
         if self.condition_prior_global:
             self.global_condition_upsampler = SpectrogramUpsampler(self.n_cond)
-        self.residual_layers = nn.ModuleList([
-            ResidualBlock(self.n_mels, params.residual_channels, 2 ** (i % params.dilation_cycle_length),
+        self.hf_residual_layers = nn.ModuleList([
+            HFResidualBlock(self.n_mels, params.residual_channels, 2 ** (i % params.dilation_cycle_length),
                           n_cond_global=self.n_cond)
             for i in range(params.residual_layers)
         ])
+        self.lf_residual_layers = nn.ModuleList([
+            LFResidualBlock(self.n_mels, params.residual_channels, 2 ** (i % params.dilation_cycle_length),
+                          n_cond_global=self.n_cond)
+            for i in range(params.residual_layers)
+        ])
+
         self.skip_projection = Conv1d(params.residual_channels, params.residual_channels, 1)
         self.output_projection = Conv1d(params.residual_channels, 1, 1)
         nn.init.zeros_(self.output_projection.weight)
 
         print('num param: {}'.format(sum(p.numel() for p in self.parameters() if p.requires_grad)))
-        #self.start = torch.cuda.Event(enable_timing=True)
-        #self.end = torch.cuda.Event(enable_timing=True)
 
     def forward(self, audio, spectrogram, diffusion_step, global_cond=None, **kwargs):
-        x = audio.unsqueeze(1)
-        x = self.input_projection(x)
+        # audio => (b, 2, t)
+        # spectrogram => b, 80, t
+        #x = audio.unsqueeze(1) 
+        rearrange(audio, "b d t -> (b d) c1 t", c1=1)
+        x = self.input_projection(x) # (b d), c, t
         x = F.relu(x)
 
-        diffusion_step = self.diffusion_embedding(diffusion_step)
-        
-        #self.start.record()
-
-        spectrogram = self.spectrogram_upsampler(spectrogram)
-
-        #self.end.record()
-
-        #torch.cuda.synchronize()
-        #print(f"spectrogram_upsampler time: {self.start.elapsed_time(self.end)}\n\n")
+        diffusion_step = self.diffusion_embedding(diffusion_step) # b, t, 512
+        spectrogram = self.spectrogram_upsampler(spectrogram) # b, 80, t
 
         if global_cond is not None:
             global_cond = self.global_condition_upsampler(global_cond)
 
-        skip = []
-        for layer in self.residual_layers:
-            #self.start.record()
-            x, skip_connection = layer(x, spectrogram, diffusion_step, global_cond)
+        rearrange(x, "(b d) c t d t -> b d c t", d=2)
+        hf_x, lf_x = torch.cunk(x, 2, dim=1) # hf_x => b 1 c t, lf_x => b 1 c t, 
+        hf_x = hf_x.squeeze() # b c t
+        lf_x = lf_x.squeeze() # b c t
 
-            skip.append(skip_connection)
+        hf_skips, lf_skips = [], []
+        for lf_res, hf_res in zip(self.hf_residual_layers, self.lf_residual_layers):
+            lf_x, lf_skip = lf_res(lf_x, spectrogram, diffusion_step, global_cond)
+            hf_x, hf_skip = hf_res(hf_x, spectrogram, diffusion_step, global_cond)
 
-        x = torch.sum(torch.stack(skip), dim=0) / sqrt(len(self.residual_layers))
+            lf_skips.append(lf_skip)
+            hf_skips.append(hf_skip)
+
+        hf_x = torch.sum(torch.stack(hf_skips), dim=0) / sqrt(len(self.hf_residual_layers)) #b c t
+        lf_x = torch.sum(torch.stack(lf_skips), dim=0) / sqrt(len(self.lf_residual_layers)) #b c t
+        hf_x = hf_x.unsqueeze(1) # b 1 c t
+        lf_x = lf_x.unsqueeze(1) # b 1 c t
+        x = torch.cat([hf_x, lf_x], dim=1) # b 2 c t
+
+        rearrange(x, "b d c t -> (b d) c t")
         x = self.skip_projection(x)
         x = F.relu(x)
         x = self.output_projection(x)
 
-        return x
+        rearrange(x, "(b d) c t -> b d c t", d=2)
+        hf_x, lf_x = torch.cunk(x, 2, dim=1) # hf_x => b 1 c t, lf_x => b 1 c t, 
+        hf_x = hf_x.squeeze() # b c t
+        lf_x = lf_x.squeeze() # b c t
+
+        return hf_x + lf_x
