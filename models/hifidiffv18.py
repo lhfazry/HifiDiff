@@ -233,8 +233,8 @@ class HifiDiffV18(nn.Module):
         # audio => (b, 2, t)
         # spectrogram => b, 80, t
         #x = audio.unsqueeze(1) 
-        rearrange(audio, "b (d c1) t -> (b d) c1 t", c1=1)
-        x = self.input_projection(audio) # (b d), c, t
+        x = rearrange(audio, "b (d c1) t -> (b d) c1 t", c1=1)
+        x = self.input_projection(x) # (b d), c, t
         x = F.relu(x)
 
         diffusion_step = self.diffusion_embedding(diffusion_step) # b, t, 512
@@ -243,7 +243,7 @@ class HifiDiffV18(nn.Module):
         if global_cond is not None:
             global_cond = self.global_condition_upsampler(global_cond)
 
-        rearrange(x, "(b d) c t -> b d c t", d=2)
+        x = rearrange(x, "(b d) c t -> b d c t", d=2)
         hf_x, lf_x = torch.cunk(x, 2, dim=1) # hf_x => b 1 c t, lf_x => b 1 c t, 
         hf_x = hf_x.squeeze() # b c t
         lf_x = lf_x.squeeze() # b c t
@@ -262,12 +262,12 @@ class HifiDiffV18(nn.Module):
         lf_x = lf_x.unsqueeze(1) # b 1 c t
         x = torch.cat([hf_x, lf_x], dim=1) # b 2 c t
 
-        rearrange(x, "b d c t -> (b d) c t")
+        x = rearrange(x, "b d c t -> (b d) c t")
         x = self.skip_projection(x)
         x = F.relu(x)
         x = self.output_projection(x)
 
-        rearrange(x, "(b d) c t -> b d c t", d=2)
+        x = rearrange(x, "(b d) c t -> b d c t", d=2)
         hf_x, lf_x = torch.cunk(x, 2, dim=1) # hf_x => b 1 c t, lf_x => b 1 c t, 
         hf_x = hf_x.squeeze() # b c t
         lf_x = lf_x.squeeze() # b c t
