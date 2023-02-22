@@ -9,3 +9,4 @@ fastdtw
 mel-cepstral-distance
 torchcrepe
 spafe
+einops
