@@ -234,7 +234,7 @@ class HifiDiffV18(nn.Module):
         # spectrogram => b, 80, t
         #x = audio.unsqueeze(1) 
         rearrange(audio, "b (d c1) t -> (b d) c1 t", c1=1)
-        x = self.input_projection(x) # (b d), c, t
+        x = self.input_projection(audio) # (b d), c, t
         x = F.relu(x)
 
         diffusion_step = self.diffusion_embedding(diffusion_step) # b, t, 512
