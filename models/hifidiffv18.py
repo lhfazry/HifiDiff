@@ -244,7 +244,7 @@ class HifiDiffV18(nn.Module):
             global_cond = self.global_condition_upsampler(global_cond)
 
         x = rearrange(x, "(b d) c t -> b d c t", d=2)
-        hf_x, lf_x = torch.cunk(x, 2, dim=1) # hf_x => b 1 c t, lf_x => b 1 c t, 
+        hf_x, lf_x = torch.chunk(x, 2, dim=1) # hf_x => b 1 c t, lf_x => b 1 c t, 
         hf_x = hf_x.squeeze() # b c t
         lf_x = lf_x.squeeze() # b c t
 
@@ -268,7 +268,7 @@ class HifiDiffV18(nn.Module):
         x = self.output_projection(x)
 
         x = rearrange(x, "(b d) c t -> b d c t", d=2)
-        hf_x, lf_x = torch.cunk(x, 2, dim=1) # hf_x => b 1 c t, lf_x => b 1 c t, 
+        hf_x, lf_x = torch.chunk(x, 2, dim=1) # hf_x => b 1 c t, lf_x => b 1 c t, 
         hf_x = hf_x.squeeze() # b c t
         lf_x = lf_x.squeeze() # b c t
 
