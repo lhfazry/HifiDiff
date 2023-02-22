@@ -265,6 +265,7 @@ class HifiDiffV18(nn.Module):
         hf_x = hf_x.unsqueeze(1) # b 1 c t
         lf_x = lf_x.unsqueeze(1) # b 1 c t
         x = torch.cat([hf_x, lf_x], dim=1) # b 2 c t
+        print(x.shape)
 
         x = rearrange(x, "b d c t -> (b d) c t")
         x = self.skip_projection(x)
