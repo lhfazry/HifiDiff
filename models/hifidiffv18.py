@@ -271,10 +271,13 @@ class HifiDiffV18(nn.Module):
         x = self.skip_projection(x)
         x = F.relu(x)
         x = self.output_projection(x)
+        print(x.shape)
 
         x = rearrange(x, "(b d) c t -> b d c t", d=2)
         hf_x, lf_x = torch.chunk(x, 2, dim=1) # hf_x => b 1 c t, lf_x => b 1 c t, 
         hf_x = hf_x.squeeze() # b c t
         lf_x = lf_x.squeeze() # b c t
 
-        return hf_x + lf_x
+        x = hf_x + lf_x
+        print(x.shape)
+        return x
