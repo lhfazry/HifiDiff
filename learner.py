@@ -187,6 +187,7 @@ class PriorGradLearner:
             noise = torch.randn_like(audio)
             noise = noise * target_std
             noisy_audio = noise_scale_sqrt * audio + (1.0 - noise_scale) ** 0.5 * noise
+            noisy_audio = noisy_audio.unsqueeze(1).repeat(1,2,1)
 
             if hasattr(self.params, 'use_f0') and self.params.use_f0:
                 predicted = self.model(noisy_audio, spectrogram, t, global_cond, f0)
