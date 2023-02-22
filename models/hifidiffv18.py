@@ -151,7 +151,7 @@ class HFResidualBlock(nn.Module):
 
         #gate, filter = torch.chunk(y, 2, dim=1)
         #y = torch.sigmoid(gate) * torch.tanh(filter)
-        y = snake(y)
+        y = self.snake(y)
 
         y = self.output_projection(y)
         residual, skip = torch.chunk(y, 2, dim=1)
@@ -230,9 +230,13 @@ class HifiDiffV18(nn.Module):
         print('num param: {}'.format(sum(p.numel() for p in self.parameters() if p.requires_grad)))
 
     def forward(self, audio, spectrogram, diffusion_step, global_cond=None, **kwargs):
-        # audio => (b, 2, t)
+        # audio => (b,t)
         # spectrogram => b, 80, t
         #x = audio.unsqueeze(1) 
+
+        with torch.no_grad():
+            audio = audio.unsqueeze(1).repeat(1, 2, 1) # (b, 2, t)
+
         x = rearrange(audio, "b (d c1) t -> (b d) c1 t", c1=1)
         x = self.input_projection(x) # (b d), c, t
         x = F.relu(x)
