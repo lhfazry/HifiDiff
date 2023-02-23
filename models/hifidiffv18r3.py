@@ -130,13 +130,12 @@ class ResidualBlock(nn.Module):
 class HFResidualBlock(nn.Module):
     def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
         super().__init__()
-        self.dilated_conv = Conv1d(residual_channels, residual_channels, 3, padding=dilation, dilation=dilation)
+        self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
         self.diffusion_projection = Linear(512, residual_channels)
-        self.conditioner_projection = Conv1d(n_mels, residual_channels, 1)
+        self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
         if n_cond_global is not None:
             self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
         self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
-        self.snake = Snake([1])
 
     def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
         # x ==> (b d), c, t
