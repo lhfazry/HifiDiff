@@ -42,6 +42,7 @@ from models.hifidiffv18r1 import HifiDiffV18R1
 from models.hifidiffv18r2 import HifiDiffV18R2
 from models.hifidiffv18r3 import HifiDiffV18R3
 from models.hifidiffv18r4 import HifiDiffV18R4
+from models.hifidiffv18r5 import HifiDiffV18R5
 from models.wavegrad import WaveGrad
 
 def build_model(params):
