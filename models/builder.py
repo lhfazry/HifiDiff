@@ -134,6 +134,8 @@ def build_model(params):
         model = HifiDiffV18R3(params)
     elif params.model == 56:
         model = HifiDiffV18R4(params)
+    elif params.model == 57:
+        model = HifiDiffV18R5(params)
     elif params.model == 99:
         model = WaveGrad(params)
 
