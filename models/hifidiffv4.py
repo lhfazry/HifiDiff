@@ -31,7 +31,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from dc1d.nn import DeformConv1d
+#from dc1d.nn import DeformConv1d
 
 from math import sqrt
 
@@ -102,17 +102,6 @@ class ResidualBlock(nn.Module):
     def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
         super().__init__()
         kernel = 3
-        self.deform_conv1d = DeformConv1d(
-            in_channels = residual_channels,
-            out_channels = residual_channels * 2,
-            kernel_size = kernel,
-            stride = 1,
-            padding = "same",
-            dilation = dilation,
-            groups = 1,
-            bias = True,
-            device="cuda"
-        )
 
         output_length = x.shape[-1]-dilation*(kernel-1)
         offsets = nn.Parameter(torch.ones(1, 1, output_length, kernel, requires_grad=True, device="cuda"))

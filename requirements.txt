@@ -2,7 +2,7 @@ numpy
 torch>=1.8
 tqdm
 librosa==0.8.1
-scipy
+scipy==1.9.3
 tensorboard
 dc1d
 fastdtw
