@@ -87,14 +87,16 @@ class SpectrogramUpsampler(nn.Module):
         super().__init__()
         self.conv1 = ConvTranspose2d(1, 1, [3, 32], stride=[1, 16], padding=[1, 8])
         self.conv2 = ConvTranspose2d(1, 1, [3, 32], stride=[1, 16], padding=[1, 8])
+        self.prelu1 = torch.nn.PReLU()
+        self.prelu2 = torch.nn.PReLU()
 
     def forward(self, x):
         # x ==> B, 80, H
         x = torch.unsqueeze(x, 1) # B, 1, 80, H
         x = self.conv1(x)
-        x = F.leaky_relu(x, 0.4)
+        x = self.prelu1(x)
         x = self.conv2(x)
-        x = F.leaky_relu(x, 0.4)
+        x = self.prelu2(x)
         x = torch.squeeze(x, 1) # B, 80, T
         return x
 
@@ -130,13 +132,12 @@ class ResidualBlock(nn.Module):
 class LFResidualBlock(nn.Module):
     def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
         super().__init__()
-        self.dilated_conv = Conv1d(residual_channels, residual_channels, 3, padding=dilation, dilation=dilation)
+        self.dilated_conv = Conv1d(residual_channels, 2 * residual_channels, 3, padding=dilation, dilation=dilation)
         self.diffusion_projection = Linear(512, residual_channels)
-        self.conditioner_projection = Conv1d(n_mels, residual_channels, 1)
+        self.conditioner_projection = Conv1d(n_mels, 2 * residual_channels, 1)
         if n_cond_global is not None:
             self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
         self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
-        self.snake = Snake([1])
 
     def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
         # x ==> (b d), c, t
@@ -149,9 +150,8 @@ class LFResidualBlock(nn.Module):
         if conditioner_global is not None:
             y = y + self.conditioner_projection_global(conditioner_global)
 
-        #gate, filter = torch.chunk(y, 2, dim=1)
-        #y = torch.sigmoid(gate) * torch.tanh(filter)
-        y = self.snake(y)
+        gate, filter = torch.chunk(y, 2, dim=1)
+        y = torch.sigmoid(gate) * torch.tanh(filter)
 
         y = self.output_projection(y)
         residual, skip = torch.chunk(y, 2, dim=1)
@@ -183,10 +183,9 @@ class HFResidualBlock(nn.Module):
 
         y = self.output_projection(y)
         residual, skip = torch.chunk(y, 2, dim=1)
-        return (x + residual) / sqrt(2.0), skip
+        return x + residual, skip
 
-
-class HifiDiffV18R1(nn.Module):
+class HifiDiffV18R4(nn.Module):
     def __init__(self, params):
         super().__init__()
         self.params = params
@@ -218,7 +217,7 @@ class HifiDiffV18R1(nn.Module):
             for i in range(params.residual_layers)
         ])
         self.lf_residual_layers = nn.ModuleList([
-            LFResidualBlock(self.n_mels, params.residual_channels, 2 ** (i % params.dilation_cycle_length),
+            LFResidualBlock(self.n_mels, params.residual_channels, 2 ** (i % (params.dilation_cycle_length // 2)),
                           n_cond_global=self.n_cond)
             for i in range(params.residual_layers)
         ])
