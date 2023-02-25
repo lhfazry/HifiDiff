@@ -52,7 +52,7 @@ CUDA_VISIBLE_DEVICES=6 python tools/evaluate2.py --prefix Ind002_M_Bli --sdir=ch
 
 CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix LJ --pretrained_model weights/nisqa_tts.tar --data_dir /workspace/HifiDiff/checkpoints/sample_slow/diffwave_step2500/ --num_workers 0 --bs 10 --output_dir results
 
-CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix LJ --pretrained_model weights/nisqa_tts.tar --data_dir /workspace/HifiDiff/checkpoints/sample_slow/diffwave_step1000000/ --num_workers 0 --bs 10 --output_dir results
+CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix LJ --pretrained_model weights/nisqa_tts.tar --data_dir /workspace/HifiDiff/checkpoints/sample_slow/diffwave_step1000000/ --num_workers 0 --bs 10 --output_dir results --filename diffwave_step1000000_LJ
 
 CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix Ind00 --pretrained_model weights/nisqa_tts.tar --data_dir /workspace/HifiDiff/checkpoints/sample_slow/diffwave_step1000000/ --num_workers 0 --bs 10 --output_dir results
 
