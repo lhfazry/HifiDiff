@@ -14,7 +14,8 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python inference.py \
     filelists/test.txt \
     --step 500000 \
     --fast_iter 50 >> logs/inferences/hifidiffv18r4_mstft.log 2>&1
-singularity exec -i --nv ~/pytorch_22.02-py3.sif python inference.py checkpoints/hifidiffv18r4_mstft \
+singularity exec -i --nv ~/pytorch_22.02-py3.sif python inference.py \
+    checkpoints/hifidiffv18r4_mstft \
     /home/s2212015/indsp \
     filelists/test_bali.txt \
     --step 500000 \
