@@ -55,13 +55,13 @@ def load_state_dict(model, state_dict):
 
 def restore_from_checkpoint(model, model_dir, step, filename='weights'):
     try:
-        checkpoint = torch.load(f'{model_dir}/{filename}-{step}.pt')
+        checkpoint = torch.load(f'{model_dir}/{filename}-{step}.pt', map_location='cpu')
         model, step = load_state_dict(model, checkpoint)
         print("Loaded {}".format(f'{model_dir}/{filename}-{step}.pt'))
         return model, step
     except FileNotFoundError:
         print("Trying to load {}...".format(f'{model_dir}/{filename}.pt'))
-        checkpoint = torch.load(f'{model_dir}/{filename}.pt')
+        checkpoint = torch.load(f'{model_dir}/{filename}.pt', map_location='cpu')
         model, step = load_state_dict(model, checkpoint)
         print("Loaded {} from {} step checkpoint".format(f'{model_dir}/{filename}.pt', step))
         return model, step
