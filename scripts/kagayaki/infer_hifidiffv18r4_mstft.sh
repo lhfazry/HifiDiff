@@ -9,7 +9,7 @@
 module load singularity
 cd ~/HifiDiff
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python inference.py \
-python inference.py checkpoints/hifidiffv18r4_mstft \
+    checkpoints/hifidiffv18r4_mstft \
     /home/s2212015/LJSpeech-1.1 \
     filelists/test.txt \
     --step 500000 \
