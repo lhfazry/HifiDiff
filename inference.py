@@ -157,9 +157,9 @@ def save_features(audio, c1, c2, predicted, step, sample_name):
 
     lf_audio = c1 * (audio - c2 * lf_x)
     hf_audio = c1 * (audio - c2 * hf_x)
-    audio = c1 * (audio - c2 * x)
+    x_audio = c1 * (audio - c2 * x)
 
-    all_audio = np.concatenate((audio.cpu().numpy(), lf_audio.cpu().numpy(), hf_audio.cpu().numpy()), axis=0)
+    all_audio = np.concatenate((x_audio.cpu().numpy(), lf_audio.cpu().numpy(), hf_audio.cpu().numpy()), axis=0)
     all_audio_path = os.path.join(sm_path.parent, f"{sm_path.stem}-{step}.npy")
     np.save(all_audio_path, all_audio)
 

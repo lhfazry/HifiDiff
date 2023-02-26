@@ -233,15 +233,13 @@ class HifiDiffV18R4(nn.Module):
         # spectrogram => b, 80, t
         #x = audio.unsqueeze(1) 
 
-        print(audio.shape)
         with torch.no_grad():
             audio = audio.unsqueeze(1).repeat(1, 2, 1) # (b, 2, t)
 
         x = rearrange(audio, "b (d c1) t -> (b d) c1 t", c1=1)
         x = self.input_projection(x) # (b d), c, t
         x = F.relu(x)
-        print(audio.shape)
-        
+
         diffusion_step = self.diffusion_embedding(diffusion_step) # b, t, 512
         spectrogram = self.spectrogram_upsampler(spectrogram) # b, 80, t
 
