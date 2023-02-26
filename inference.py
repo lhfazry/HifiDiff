@@ -122,13 +122,13 @@ def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_samp
                 predicted = model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
                                              global_cond, f0).squeeze(1)
                 save_features(audio, c1, c2, predicted, n, sample_name)
-                predicted = predicted[0] if type(predicted) is tuple
+                predicted = predicted[0] if type(predicted) is tuple else predicted
                 audio = c1 * (audio - c2 * predicted)
             else:
                 predicted = model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
                                              global_cond).squeeze(1)
                 save_features(audio, c1, c2, predicted, n, sample_name)
-                predicted = predicted[0] if type(predicted) is tuple
+                predicted = predicted[0] if type(predicted) is tuple else predicted
                 audio = c1 * (audio - c2 * predicted)
 
             if n > 0:

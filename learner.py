@@ -267,8 +267,8 @@ class PriorGradLearner:
                 else:
                     predicted = self.model(noisy_audio, spectrogram, t, global_cond)
 
-                predicted = predicted[0] if type(predicted) is tuple
-                
+                predicted = predicted[0] if type(predicted) is tuple else predicted
+
                 if self.use_prior:
                     if self.use_l2loss:
                         loss = scaled_mse_loss(predicted.squeeze(1), noise, target_std)
@@ -346,23 +346,23 @@ class PriorGradLearner:
                     if hasattr(self.params, 'use_f0') and self.params.use_f0:
                         predicted = self.model.module(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
                                                                  global_cond, f0).squeeze(1)
-                        predicted = predicted[0] if type(predicted) is tuple
+                        predicted = predicted[0] if type(predicted) is tuple else predicted
                         audio = c1 * (audio - c2 * predicted)
                     else:
                         predicted = self.model.module(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
                                                                  global_cond).squeeze(1)
-                        predicted = predicted[0] if type(predicted) is tuple
+                        predicted = predicted[0] if type(predicted) is tuple else predicted
                         audio = c1 * (audio - c2 * predicted)
                 else:
                     if hasattr(self.params, 'use_f0') and self.params.use_f0:
                         predicted = self.model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
                                                           global_cond, f0).squeeze(1)
-                        predicted = predicted[0] if type(predicted) is tuple
+                        predicted = predicted[0] if type(predicted) is tuple else predicted
                         audio = c1 * (audio - c2 * predicted)
                     else:
                         predicted = self.model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
                                                           global_cond).squeeze(1)
-                        predicted = predicted[0] if type(predicted) is tuple
+                        predicted = predicted[0] if type(predicted) is tuple else predicted
                         audio = c1 * (audio - c2 * predicted)
                 if n > 0:
                     noise = torch.randn_like(audio) * target_std
