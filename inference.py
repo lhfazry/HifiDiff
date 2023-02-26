@@ -143,7 +143,7 @@ def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_samp
         return audio, start.elapsed_time(end)
 
 def save_features(audio, c1, c2, predicted, step, sample_name):
-    if type(predicted) is no tuple:
+    if type(predicted) is not tuple:
         return
     
     sm_path = Path(sample_name)
