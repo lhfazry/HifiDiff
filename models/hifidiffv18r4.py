@@ -233,6 +233,7 @@ class HifiDiffV18R4(nn.Module):
         # spectrogram => b, 80, t
         #x = audio.unsqueeze(1) 
 
+        print(audio.shape)
         with torch.no_grad():
             audio = audio.unsqueeze(1).repeat(1, 2, 1) # (b, 2, t)
 
