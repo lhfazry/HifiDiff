@@ -1,6 +1,7 @@
 import os
 import csv
 import shutil
+from pathlib import Path
 from argparse import ArgumentParser
 
 def main(args):
@@ -11,7 +12,8 @@ def main(args):
         csv_reader = csv.reader(csv_file, delimiter=',')
 
         for row in csv_reader:
-            shutil.copyfile(row[0], args.odir)
+            print(f"Copying {row[0]}")
+            shutil.copyfile(row[0], os.path.join(args.odir, Path(row[0].name)))
     
 if __name__ == '__main__':
     parser = ArgumentParser(description='Resample wav')
