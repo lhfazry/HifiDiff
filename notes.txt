@@ -1,6 +1,6 @@
 GT
 ---
-CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_csv --csv_file /workspace/HifiDiff/filelists/test.txt --pretrained_model weights/nisqa_tts.tar --data_dir /workspace/LJSpeech-1.1/wavs --num_workers 0 --bs 10 --output_dir results --filename lj_speech_test
+CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix LJ --pretrained_model weights/nisqa_tts.tar --data_dir /workspace/LJSpeech-1.1/test --num_workers 0 --bs 10 --output_dir results --filename lj_speech_test
 
 -----
 0. diffwave
