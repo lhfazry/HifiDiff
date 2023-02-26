@@ -13,7 +13,7 @@ def main(args):
 
         for row in csv_reader:
             print(f"Copying {row[0]}")
-            shutil.copyfile(row[0], os.path.join(args.odir, Path(row[0].name)))
+            shutil.copyfile(row[0], os.path.join(args.odir, Path(row[0]).name))
     
 if __name__ == '__main__':
     parser = ArgumentParser(description='Resample wav')
