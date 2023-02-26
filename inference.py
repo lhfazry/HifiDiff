@@ -66,7 +66,7 @@ def restore_from_checkpoint(model, model_dir, step, filename='weights'):
         print("Loaded {} from {} step checkpoint".format(f'{model_dir}/{filename}.pt', step))
         return model, step
 
-def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_sampling=True):
+def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_sampling=True, sample_name=None):
     with torch.no_grad():
         # Change in notation from the Diffwave paper for fast sampling.
         # DiffWave paper -> Implementation below
@@ -119,11 +119,18 @@ def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_samp
             c1 = 1 / alpha[n] ** 0.5
             c2 = beta[n] / (1 - alpha_cum[n]) ** 0.5
             if hasattr(model.params, 'use_f0') and model.params.use_f0:
-                audio = c1 * (audio - c2 * model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
-                                             global_cond, f0).squeeze(1))
+                predicted = model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
+                                             global_cond, f0).squeeze(1)
+                save_features(audio, c1, c2, predicted, n, sample_name)
+                predicted = predicted[0] if type(predicted) is tuple
+                audio = c1 * (audio - c2 * predicted)
             else:
-                audio = c1 * (audio - c2 * model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
-                                             global_cond).squeeze(1))
+                predicted = model(audio, spectrogram, torch.tensor([T[n]], device=audio.device),
+                                             global_cond).squeeze(1)
+                save_features(audio, c1, c2, predicted, n, sample_name)
+                predicted = predicted[0] if type(predicted) is tuple
+                audio = c1 * (audio - c2 * predicted)
+
             if n > 0:
                 noise = torch.randn_like(audio) * target_std
                 sigma = ((1.0 - alpha_cum[n - 1]) / (1.0 - alpha_cum[n]) * beta[n]) ** 0.5
@@ -135,6 +142,20 @@ def predict(model, spectrogram, target_std, global_cond=None, f0=None, fast_samp
 
         return audio, start.elapsed_time(end)
 
+def save_features(audio, c1, c2, predicted, step, sample_name):
+    if type(predicted) is no tuple:
+        return
+    
+    sm_path = Path(sample_name)
+    x, hf_x, lf_x = predicted
+
+    lf_audio = c1 * (audio - c2 * lf_x)
+    hf_audio = c1 * (audio - c2 * hf_x)
+    audio = c1 * (audio - c2 * x)
+
+    all_audio = np.concatenate((audio, lf_audio, hf_audio), axis=0)
+    all_audio_path = os.path.join(sm_path.parent, f"{sm_path.stem}.npy")
+    np.save(all_audio_path, all_audio)
 
 def main(args):
     # load saved params_saved.py in model_dir
@@ -186,7 +207,9 @@ def main(args):
     # do test set inference for given checkpoint and exit
     for i, features in tqdm(enumerate(dataset_test)):
         features = _nested_map(features, lambda x: x.to(device) if isinstance(x, torch.Tensor) else x)
+
         with torch.no_grad():
+            sample_name = Path(features['filename'][0]).name
             audio_gt = features['audio']
             spectrogram = features['spectrogram']
             target_std = features['target_std']
@@ -203,11 +226,10 @@ def main(args):
                 global_cond = None
 
         audio, predict_time = predict(model, spectrogram, target_std, global_cond=global_cond, f0=f0, 
-            fast_sampling=args.fast)
+            fast_sampling=args.fast, sample_name=os.path.join(sample_path, sample_name))
         total_time += predict_time
 
         #sample_name = "{:04d}.wav".format(i + 1)
-        sample_name = Path(features['filename'][0]).name
         torchaudio.save(os.path.join(sample_path, sample_name), audio.cpu(), sample_rate=params.sample_rate)
     
     print(f"time: {total_time / len(dataset_test)}\n\n")

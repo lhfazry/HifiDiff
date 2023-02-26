@@ -16,7 +16,7 @@ CUDA_VISIBLE_DEVICES=6 python __main__.py \
     checkpoints/diffwave_c64 \
     /workspace/LJSpeech-1.1 \
     filelists/train.txt \
-    --max_steps 1000000 --validate_loop 10000 --save_ckpt_loop 50000 >> logs/diffwave_c64.log 2>&1 &
+    --max_steps 300000 --validate_loop 10000 --save_ckpt_loop 50000 >> logs/diffwave_c64.log 2>&1 &
 
 
 CUDA_VISIBLE_DEVICES=0 python __main__.py \

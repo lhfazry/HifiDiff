@@ -276,4 +276,8 @@ class HifiDiffV18R4(nn.Module):
         lf_x = lf_x.squeeze(dim=1) # b c t
 
         x = hf_x + lf_x
-        return x
+
+        if self.training:
+            return x
+        else:
+            return x, hf_x, lf_x
