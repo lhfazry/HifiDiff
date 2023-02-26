@@ -126,7 +126,7 @@ class PriorGradLearner:
 
     def restore_from_checkpoint(self, filename='weights'):
         try:
-            checkpoint = torch.load(f'{self.model_dir}/{filename}.pt')
+            checkpoint = torch.load(f'{self.model_dir}/{filename}.pt', map_location='cpu')
             self.load_state_dict(checkpoint)
             return True
         except FileNotFoundError:
