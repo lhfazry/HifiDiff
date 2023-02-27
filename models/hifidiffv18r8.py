@@ -138,7 +138,7 @@ class LFResidualBlock(nn.Module):
         if n_cond_global is not None:
             self.conditioner_projection_global = Conv1d(n_cond_global, 2 * residual_channels, 1)
         self.output_projection = Conv1d(residual_channels, 2 * residual_channels, 1)
-        self.snake = Snake(residual_channels)
+        self.snake = Snake(2 * residual_channels)
 
     def forward(self, x, conditioner, diffusion_step, conditioner_global=None):
         # x ==> (b d), c, t
