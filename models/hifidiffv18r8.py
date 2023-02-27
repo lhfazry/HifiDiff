@@ -214,7 +214,7 @@ class HifiDiffV18R8(nn.Module):
         if self.condition_prior_global:
             self.global_condition_upsampler = SpectrogramUpsampler(self.n_cond)
         self.hf_residual_layers = nn.ModuleList([
-            HFResidualBlock(self.n_mels, params.residual_channels, 2 ** (i % params.dilation_cycle_length // 3),
+            HFResidualBlock(self.n_mels, params.residual_channels, 2 ** (i % params.dilation_cycle_length // 2),
                           n_cond_global=self.n_cond)
             for i in range(params.residual_layers)
         ])
