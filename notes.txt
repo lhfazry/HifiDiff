@@ -2,6 +2,8 @@ GT
 ---
 CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix LJ --pretrained_model weights/nisqa_tts.tar --data_dir /workspace/LJSpeech-1.1/test --num_workers 0 --bs 10 --output_dir results --filename lj_speech_test
 
+CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix Ind001_F_Bli --pretrained_model weights/nisqa_tts.tar --data_dir /home/s2212015/indsp/Ind001_F_Bli --num_workers 0 --bs 10 --output_dir results --filename Ind001_F_Bli
+
 -----
 0. diffwave
 CUDA_VISIBLE_DEVICES=5 python __main__.py \
@@ -732,11 +734,19 @@ CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix LJ --p
 
 CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix LJ --pretrained_model weights/nisqa_tts.tar --data_dir ~/HifiDiff/checkpoints/sample_slow/hifidiffv18r4_mstft_step800000/ --num_workers 0 --bs 10 --output_dir results --filename hifidiffv18r4_mstft_step800000_LJ
 
+CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix LJ --pretrained_model weights/nisqa_tts.tar --data_dir ~/HifiDiff/checkpoints/sample_slow/hifidiffv18r4_mstft_step950000/ --num_workers 0 --bs 10 --output_dir results --filename hifidiffv18r4_mstft_step950000_LJ
+
+CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix LJ --pretrained_model weights/nisqa_tts.tar --data_dir ~/HifiDiff/checkpoints/sample_slow/hifidiffv18r4_mstft_step1000000/ --num_workers 0 --bs 10 --output_dir results --filename hifidiffv18r4_mstft_step1000000_LJ
+
 CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix Ind00 --pretrained_model weights/nisqa_tts.tar --data_dir /workspace/HifiDiff/checkpoints/sample_slow/hifidiffv18r4_mstft_step2500/ --num_workers 0 --bs 10 --output_dir results --filename hifidiffv18r4_mstft_step2500_Ind00
 
 CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix Ind002_M_Bli --pretrained_model weights/nisqa_tts.tar --data_dir /home/s2212015/HifiDiff/checkpoints/sample_slow/hifidiffv18r4_mstft_step800000/ --num_workers 0 --bs 10 --output_dir results --filename hifidiffv18r4_mstft_step800000_Ind002_M_Bli
 
 CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix Ind001_F_Bli --pretrained_model weights/nisqa_tts.tar --data_dir /home/s2212015/HifiDiff/checkpoints/sample_slow/hifidiffv18r4_mstft_step800000/ --num_workers 0 --bs 10 --output_dir results --filename hifidiffv18r4_mstft_step800000_Ind001_F_Bli
+
+CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix Ind001_F_Bli --pretrained_model weights/nisqa_tts.tar --data_dir /home/s2212015/HifiDiff/checkpoints/sample_slow/hifidiffv18r4_mstft_step950000/ --num_workers 0 --bs 10 --output_dir results --filename hifidiffv18r4_mstft_step950000_Ind001_F_Bli
+
+CUDA_VISIBLE_DEVICES=6  python run_predict.py --mode predict_dir --prefix Ind001_F_Bli --pretrained_model weights/nisqa_tts.tar --data_dir /home/s2212015/HifiDiff/checkpoints/sample_slow/hifidiffv18r4_mstft_step1000000/ --num_workers 0 --bs 10 --output_dir results --filename hifidiffv18r4_mstft_step1000000_Ind001_F_Bli
 
 
 
