@@ -15,6 +15,7 @@ from glob import glob
 import torchcrepe
 import torch
 import scipy.stats
+from misc.stft_loss import MultiResolutionSTFTLoss
 
 def mean_confidence_interval(data, confidence=0.95):
     a = 1.0 * np.array(data)
@@ -25,18 +26,24 @@ def mean_confidence_interval(data, confidence=0.95):
 
 def main(args):
     mcds = []
+    mstft = []
     pitches = []
     periodicities = []
-    total = 0
     sr = 22050
+    mstft_loss = MultiResolutionSTFTLoss()
 
     for fname in glob(os.path.join(args.sdir, f"{args.prefix}*.wav")):
+        swav, _ = librosa.load(os.path.join(args.sdir, Path(fname)), sr=sr, mono=True)
+        owav, _ = librosa.load(os.path.join(args.odir, Path(fname).name), sr=sr, mono=True)
+
         mcd, penalty, _ = get_metrics_wavs(Path(fname), 
             Path(os.path.join(args.odir, Path(fname).name)))
 
+        stft, _ = mstft_loss(swav, owav)
+
         mcds.append(mcd)
-        total += 1
-        
+        mstft.append(stft)
+        '''
         audio1, sr1 = torchcrepe.load.audio(fname)
         audio2, sr2 = torchcrepe.load.audio(os.path.join(args.odir, Path(fname).name))
 
@@ -46,8 +53,6 @@ def main(args):
         if audio2.shape[1] > audio1.shape[1]:
             audio2 = audio2[:,:audio1.shape[1]]
 
-        #print(f"Audio1: {audio1.shape}, Audio2: {audio2.shape}")
-
         pitch1, periodicity1 = torchcrepe.predict(audio1, sr1, 256, 50, 550,
                            'full', return_periodicity=True, batch_size=1024,
                            device='cuda:0')
@@ -56,17 +61,19 @@ def main(args):
                            'full', return_periodicity=True, batch_size=1024,
                            device='cuda:0')
 
-        #print(f"pitch1: {pitch1.shape}, pitch2: {pitch2.shape}")
         pitches.append(torch.abs(torch.mean(1200 * torch.log2(pitch2 / pitch1))).cpu().numpy())
         periodicities.append(torch.sqrt(torch.nn.functional.mse_loss(periodicity1, periodicity2)).cpu().numpy())
+        '''
     
     m_mcd = mean_confidence_interval(mcds)
-    m_pitches = mean_confidence_interval(pitches)
-    m_periodicities = mean_confidence_interval(periodicities)
+    m_mstft = mean_confidence_interval(mstft)
+    #m_pitches = mean_confidence_interval(pitches)
+    #m_periodicities = mean_confidence_interval(periodicities)
 
     print(f"MCD: {m_mcd[0]} \u00b1 {m_mcd[1]}")
-    print(f"Pitch: {m_pitches[0]} \u00b1 {m_pitches[1]}")
-    print(f"Periodicity: {m_periodicities[0]} \u00b1 {m_periodicities[1]}\n")
+    print(f"MSTFT: {m_mstft[0]} \u00b1 {m_mstft[1]}")
+    #print(f"Pitch: {m_pitches[0]} \u00b1 {m_pitches[1]}")
+    #print(f"Periodicity: {m_periodicities[0]} \u00b1 {m_periodicities[1]}\n")
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Calculate MCD')
