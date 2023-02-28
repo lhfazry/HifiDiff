@@ -16,6 +16,7 @@ import torchcrepe
 import torch
 import scipy.stats
 from misc.stft_loss import MultiResolutionSTFTLoss
+import librosa
 
 def mean_confidence_interval(data, confidence=0.95):
     a = 1.0 * np.array(data)
