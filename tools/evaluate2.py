@@ -34,7 +34,7 @@ def main(args):
     mstft_loss = MultiResolutionSTFTLoss()
 
     for fname in glob(os.path.join(args.sdir, f"{args.prefix}*.wav")):
-        swav, _ = librosa.load(os.path.join(args.sdir, Path(fname)), sr=sr, mono=True)
+        swav, _ = librosa.load(fname, sr=sr, mono=True)
         owav, _ = librosa.load(os.path.join(args.odir, Path(fname).name), sr=sr, mono=True)
 
         mcd, penalty, _ = get_metrics_wavs(Path(fname), 
