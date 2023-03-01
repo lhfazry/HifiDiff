@@ -44,10 +44,10 @@ def main(args):
         mcd, penalty, _ = get_metrics_wavs(Path(fname), 
             Path(os.path.join(args.odir, Path(fname).name)))
 
-        stft, _ = mstft_loss(torch.from_numpy(swav).to('cuda:0').unsqueeze(0), torch.from_numpy(owav).to('cuda:0').unsqueeze(0))
+        stft, _ = mstft_loss(torch.from_numpy(swav).unsqueeze(0), torch.from_numpy(owav).unsqueeze(0))
 
         mcds.append(mcd)
-        mstft.append(stft.squeeze().cpu().numpy())
+        mstft.append(stft.squeeze().numpy())
 
         '''
         audio1, sr1 = torchcrepe.load.audio(fname)
