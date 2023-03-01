@@ -37,9 +37,9 @@ def main(args):
     for fname in glob(os.path.join(args.sdir, f"{args.prefix}*.wav")):
         swav, _ = librosa.load(fname, sr=sr, mono=True)
         owav, _ = librosa.load(os.path.join(args.odir, Path(fname).name), sr=sr, mono=True)
-
-        print(f"swav: {swav.shape}")
-        print(f"owav: {owav.shape}")
+        owav = owav[:swav.shape[0]]
+        #print(f"swav: {swav.shape}")
+        #print(f"owav: {owav.shape}")
 
         mcd, penalty, _ = get_metrics_wavs(Path(fname), 
             Path(os.path.join(args.odir, Path(fname).name)))
