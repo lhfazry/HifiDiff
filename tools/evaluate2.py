@@ -47,8 +47,8 @@ def main(args):
         stft, _ = mstft_loss(torch.from_numpy(swav).to('cuda:0').unsqueeze(0), torch.from_numpy(owav).to('cuda:0').unsqueeze(0))
 
         mcds.append(mcd)
-        mstft.append(stft.unsqueeze().cpu().numpy())
-        
+        mstft.append(stft.unsqueeze(0).cpu().numpy())
+
         '''
         audio1, sr1 = torchcrepe.load.audio(fname)
         audio2, sr2 = torchcrepe.load.audio(os.path.join(args.odir, Path(fname).name))
