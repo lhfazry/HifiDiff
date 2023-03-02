@@ -162,7 +162,7 @@ class LFResidualBlock(nn.Module):
 
         y = self.output_projection(y)
         residual, skip = torch.chunk(y, 2, dim=1)
-        return x + residual, skip
+        return (x + residual) / sqrt(2.0), skip
 
 class HFResidualBlock(nn.Module):
     def __init__(self, n_mels, residual_channels, dilation, n_cond_global=None):
