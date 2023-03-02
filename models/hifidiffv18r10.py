@@ -92,8 +92,8 @@ class SpectrogramUpsampler(nn.Module):
             self.act1 = Snake(80)
             self.act2 = Snake(80)
         else:
-            self.act1 = torch.nn.PReLU(80)
-            self.act2 = torch.nn.PReLU(80)
+            self.act1 = torch.nn.PReLU()
+            self.act2 = torch.nn.PReLU()
 
     def forward(self, x):
         # x ==> B, 80, H
