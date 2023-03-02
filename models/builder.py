@@ -44,8 +44,10 @@ from models.hifidiffv18r3 import HifiDiffV18R3
 from models.hifidiffv18r4 import HifiDiffV18R4
 from models.hifidiffv18r5 import HifiDiffV18R5
 from models.hifidiffv18r6 import HifiDiffV18R6
+from models.hifidiffv18r7 import HifiDiffV18R7
 from models.hifidiffv18r8 import HifiDiffV18R8
 from models.hifidiffv18r9 import HifiDiffV18R9
+from models.hifidiffv18r10 import HifiDiffV18R10
 from models.wavegrad import WaveGrad
 
 def build_model(params):
@@ -147,6 +149,8 @@ def build_model(params):
         model = HifiDiffV18R8(params)
     elif params.model == 61:
         model = HifiDiffV18R9(params)
+    elif params.model == 62:
+        model = HifiDiffV18R10(params)
     elif params.model == 99:
         model = WaveGrad(params)
 
