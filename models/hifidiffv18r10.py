@@ -83,22 +83,25 @@ class DiffusionEmbedding(nn.Module):
 
 
 class SpectrogramUpsampler(nn.Module):
-    def __init__(self, n_mels):
+    def __init__(self, n_mels, periodic=True):
         super().__init__()
         self.conv1 = ConvTranspose2d(1, 1, [3, 32], stride=[1, 16], padding=[1, 8])
         self.conv2 = ConvTranspose2d(1, 1, [3, 32], stride=[1, 16], padding=[1, 8])
-        #self.prelu1 = torch.nn.PReLU()
-        #self.prelu2 = torch.nn.PReLU()
-        self.snake1 = Snake(80)
-        self.snake2 = Snake(80)
+
+        if periodic:
+            self.act1 = Snake(80)
+            self.act2 = Snake(80)
+        else:
+            self.act1 = torch.nn.PReLU(80)
+            self.act2 = torch.nn.PReLU(80)
 
     def forward(self, x):
         # x ==> B, 80, H
         x = torch.unsqueeze(x, 1) # B, 1, 80, H
         x = self.conv1(x)
-        x = self.snake1(x)
+        x = self.act1(x)
         x = self.conv2(x)
-        x = self.snake2(x)
+        x = self.act2(x)
         x = torch.squeeze(x, 1) # B, 80, T
         return x
 
@@ -211,7 +214,8 @@ class HifiDiffV18R10(nn.Module):
 
         self.input_projection = Conv1d(1, params.residual_channels, 1)
         self.diffusion_embedding = DiffusionEmbedding(len(params.noise_schedule))
-        self.spectrogram_upsampler = SpectrogramUpsampler(self.n_mels)
+        self.spectrogram_upsampler1 = SpectrogramUpsampler(self.n_mels, periodic=True)
+        self.spectrogram_upsampler2 = SpectrogramUpsampler(self.n_mels, periodic=False)
 
         if self.condition_prior_global:
             self.global_condition_upsampler = SpectrogramUpsampler(self.n_cond)
@@ -245,7 +249,8 @@ class HifiDiffV18R10(nn.Module):
         x = F.relu(x)
 
         diffusion_step = self.diffusion_embedding(diffusion_step) # b, t, 512
-        spectrogram = self.spectrogram_upsampler(spectrogram) # b, 80, t
+        spectrogram1 = self.spectrogram_upsampler1(spectrogram) # b, 80, t periodic
+        spectrogram2 = self.spectrogram_upsampler2(spectrogram) # b, 80, t not periodic
 
         if global_cond is not None:
             global_cond = self.global_condition_upsampler(global_cond)
@@ -257,8 +262,8 @@ class HifiDiffV18R10(nn.Module):
 
         hf_skips, lf_skips = [], []
         for lf_res, hf_res in zip(self.hf_residual_layers, self.lf_residual_layers):
-            lf_x, lf_skip = lf_res(lf_x, spectrogram, diffusion_step, global_cond)
-            hf_x, hf_skip = hf_res(hf_x, spectrogram, diffusion_step, global_cond)
+            lf_x, lf_skip = lf_res(lf_x, spectrogram1, diffusion_step, global_cond)
+            hf_x, hf_skip = hf_res(hf_x, spectrogram2, diffusion_step, global_cond)
 
             lf_skips.append(lf_skip)
             hf_skips.append(hf_skip)
