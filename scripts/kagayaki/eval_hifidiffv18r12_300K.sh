@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#PBS -q GPU-1
+#PBS -q GPU-1A
 #PBS -N eval_hifidiffv18r12
 #PBS -l select=1:ngpus=1
 #PBS -j oe
