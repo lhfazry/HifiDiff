@@ -106,5 +106,5 @@ if __name__ == '__main__':
     parser.add_argument('--sr', type=int, default=22050, help='Sampling rate')
     parser.add_argument('--prefix', default='LJ', help='Prefix')
     
-    print("\n\n: Evaluating ....")
+    print("\n\nEvaluating ....")
     main(parser.parse_args())
