@@ -11,7 +11,7 @@ cd ~/HifiDiff
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python tools/evaluate2.py \
     --prefix LJ \
     --sdir=checkpoints/sample_slow/hifidiffv18r12_step300000 \
-    --odir=/workspace/LJSpeech-1.1/wavs >> logs/evaluation/hifidiffv18r12.log 2>&1
+    --odir=/home/s2212015/LJSpeech-1.1/wavs >> logs/evaluation/hifidiffv18r12.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python tools/evaluate2.py \
     --prefix Ind001_F_Bli \
