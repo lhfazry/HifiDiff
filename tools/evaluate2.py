@@ -52,9 +52,9 @@ def main(args):
         o_mel = librosa.feature.melspectrogram(y=owav, sr=sr, n_fft=1024, hop_length=256, win_length=512, 
                                                n_mels = 80)
         
-        s_f0, _, _ = librosa.pyin(y=swav, frame_length=1024, win_length=512, hop_length=256, 
+        s_f0, _, _ = librosa.pyin(y=swav, frame_length=1024, win_length=512, hop_length=256, fill_na=None,
                                   fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
-        o_f0, _, _ = librosa.pyin(y=owav, frame_length=1024, win_length=512, hop_length=256, 
+        o_f0, _, _ = librosa.pyin(y=owav, frame_length=1024, win_length=512, hop_length=256, fill_na=None,
                                   fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
         
         mcds.append(mcd)
