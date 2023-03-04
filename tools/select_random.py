@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 
 def select_random(args):
     files = glob(os.path.join(args.input_dir,  "*.wav"))
-    selecteds = np.random.choice(files, 100)
+    selecteds = np.random.choice(files, 100, False)
     residuals = [item for item in files if item not in selecteds]
     print(f"files size: {len(files)}")
     print(f"selecteds size: {len(selecteds)}")
