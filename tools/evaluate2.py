@@ -18,6 +18,7 @@ import scipy.stats
 from misc.stft_loss import MultiResolutionSTFTLoss
 import librosa
 import torch
+from datetime import date
 
 def mean_confidence_interval(data, confidence=0.95):
     a = 1.0 * np.array(data)
@@ -29,6 +30,9 @@ def mean_confidence_interval(data, confidence=0.95):
 def main(args):
     mcds = []
     mstft = []
+    mls_mae = []
+    mf0_rmse = []
+
     pitches = []
     periodicities = []
     sr = 22050
@@ -38,16 +42,25 @@ def main(args):
         swav, _ = librosa.load(fname, sr=sr, mono=True)
         owav, _ = librosa.load(os.path.join(args.odir, Path(fname).name), sr=sr, mono=True)
         owav = owav[:swav.shape[0]]
-        #print(f"swav: {swav.shape}")
-        #print(f"owav: {owav.shape}")
 
         mcd, penalty, _ = get_metrics_wavs(Path(fname), 
             Path(os.path.join(args.odir, Path(fname).name)))
 
         stft, _ = mstft_loss(torch.from_numpy(swav).unsqueeze(0), torch.from_numpy(owav).unsqueeze(0))
-
+        s_mel = librosa.feature.melspectrogram(y=swav, sr=sr, n_fft=1024, hop_length=256, 
+                                               win_length=512, n_mels = 80)
+        o_mel = librosa.feature.melspectrogram(y=owav, sr=sr, n_fft=1024, hop_length=256, win_length=512, 
+                                               n_mels = 80)
+        
+        s_f0, _, _ = librosa.pyin(y=swav, frame_length=1024, win_length=512, hop_length=256, 
+                                  fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
+        o_f0, _, _ = librosa.pyin(y=owav, frame_length=1024, win_length=512, hop_length=256, 
+                                  fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
+        
         mcds.append(mcd)
         mstft.append(stft.squeeze().numpy())
+        mls_mae.append(np.mean(abs(s_mel - o_mel)))
+        mf0_rmse.append(np.sqrt(np.mean((s_f0 - o_f0) ** 2)))
 
         '''
         audio1, sr1 = torchcrepe.load.audio(fname)
@@ -73,11 +86,16 @@ def main(args):
     
     m_mcd = mean_confidence_interval(mcds)
     m_mstft = mean_confidence_interval(mstft)
+    m_mls_mae = mean_confidence_interval(mls_mae)
+    m_mf0_rmse = mean_confidence_interval(mf0_rmse)
     #m_pitches = mean_confidence_interval(pitches)
     #m_periodicities = mean_confidence_interval(periodicities)
 
+    print(f"{date.today()} ==> {args.sdir}")
     print(f"MCD: {m_mcd[0]} \u00b1 {m_mcd[1]}")
     print(f"MSTFT: {m_mstft[0]} \u00b1 {m_mstft[1]}")
+    print(f"MLS_MAE: {m_mls_mae[0]} \u00b1 {m_mls_mae[1]}")
+    print(f"MF0_RMSE: {m_mf0_rmse[0]} \u00b1 {m_mf0_rmse[1]}")
     #print(f"Pitch: {m_pitches[0]} \u00b1 {m_pitches[1]}")
     #print(f"Periodicity: {m_periodicities[0]} \u00b1 {m_periodicities[1]}\n")
 
