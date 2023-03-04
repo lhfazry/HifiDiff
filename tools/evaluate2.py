@@ -91,7 +91,7 @@ def main(args):
     #m_pitches = mean_confidence_interval(pitches)
     #m_periodicities = mean_confidence_interval(periodicities)
 
-    print(f"{date.today()} ==> {args.sdir}")
+    print(f"{date.today()} ==> {args.sdir} - {args.prefix}")
     print(f"MCD: {m_mcd[0]} \u00b1 {m_mcd[1]}")
     print(f"MSTFT: {m_mstft[0]} \u00b1 {m_mstft[1]}")
     print(f"MLS_MAE: {m_mls_mae[0]} \u00b1 {m_mls_mae[1]}")
@@ -106,4 +106,5 @@ if __name__ == '__main__':
     parser.add_argument('--sr', type=int, default=22050, help='Sampling rate')
     parser.add_argument('--prefix', default='LJ', help='Prefix')
     
+    print("\n\n: Evaluating ....")
     main(parser.parse_args())
