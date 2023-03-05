@@ -9,3 +9,12 @@ CUDA_VISIBLE_DEVICES=3 python __main__.py \
     /workspace/LJSpeech-1.1 \
     filelists/train.txt \
     --max_steps 2500 --validate_loop 250 --save_ckpt_loop 2500 >> logs/hifidiffv18r16.log 2>&1 && CUDA_VISIBLE_DEVICES=3 python inference.py checkpoints/hifidiffv18r16 /workspace/indsp filelists/test_bali.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv18r16.log 2>&1 && CUDA_VISIBLE_DEVICES=3 python inference.py checkpoints/hifidiffv18r16 /workspace/indsp filelists/test_sso.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv18r16.log 2>&1 && CUDA_VISIBLE_DEVICES=3  python tools/evaluate2.py --prefix Ind001_F_Bli --sdir checkpoints/sample_slow/hifidiffv18r16_step2500 --odir /workspace/indsp/Ind001_F_Bli/ >> logs/evaluation/hifidiffv18r16_step2500.log 2>&1 && CUDA_VISIBLE_DEVICES=3 python tools/evaluate2.py --prefix Ind002_M_Bli --sdir checkpoints/sample_slow/hifidiffv18r16_step2500 --odir /workspace/indsp/Ind002_M_Bli/ >> logs/evaluation/hifidiffv18r16_step2500.log 2>&1 && CUDA_VISIBLE_DEVICES=3 python tools/evaluate2.py --prefix sso_ --sdir checkpoints/sample_slow/hifidiffv18r16_step2500 --odir /workspace/datasets/st_za/za/sso/wavs/ >> logs/evaluation/hifidiffv18r16_step2500.log 2>&1 &
+
+------------------------------
+hifidiffv18r17
+CUDA_VISIBLE_DEVICES=3 python __main__.py \
+    configs/hifidiffv18r17.py \
+    checkpoints/hifidiffv18r17 \
+    /workspace/LJSpeech-1.1 \
+    filelists/train.txt \
+    --max_steps 2500 --validate_loop 250 --save_ckpt_loop 2500 >> logs/hifidiffv18r17.log 2>&1 && CUDA_VISIBLE_DEVICES=3 python inference.py checkpoints/hifidiffv18r17 /workspace/indsp filelists/test_bali.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv18r17.log 2>&1 && CUDA_VISIBLE_DEVICES=3 python inference.py checkpoints/hifidiffv18r17 /workspace/indsp filelists/test_sso.txt --step 2500 --fast_iter 50 >> logs/inferences/hifidiffv18r17.log 2>&1 && CUDA_VISIBLE_DEVICES=3  python tools/evaluate2.py --prefix Ind001_F_Bli --sdir checkpoints/sample_slow/hifidiffv18r17_step2500 --odir /workspace/indsp/Ind001_F_Bli/ >> logs/evaluation/hifidiffv18r17_step2500.log 2>&1 && CUDA_VISIBLE_DEVICES=3 python tools/evaluate2.py --prefix Ind002_M_Bli --sdir checkpoints/sample_slow/hifidiffv18r17_step2500 --odir /workspace/indsp/Ind002_M_Bli/ >> logs/evaluation/hifidiffv18r17_step2500.log 2>&1 && CUDA_VISIBLE_DEVICES=3 python tools/evaluate2.py --prefix sso_ --sdir checkpoints/sample_slow/hifidiffv18r17_step2500 --odir /workspace/datasets/st_za/za/sso/wavs/ >> logs/evaluation/hifidiffv18r17_step2500.log 2>&1 &
