@@ -92,9 +92,9 @@ def main(args):
     #m_periodicities = mean_confidence_interval(periodicities)
 
     print(f"{date.today()} ==> {args.sdir} - {args.prefix}")
-    print(f"MCD: {m_mcd[0]} \u00b1 {m_mcd[1]}")
-    print(f"MSTFT: {m_mstft[0]} \u00b1 {m_mstft[1]}")
     print(f"MLS_MAE: {m_mls_mae[0]} \u00b1 {m_mls_mae[1]}")
+    print(f"MSTFT: {m_mstft[0]} \u00b1 {m_mstft[1]}")
+    print(f"MCD: {m_mcd[0]} \u00b1 {m_mcd[1]}")
     print(f"MF0_RMSE: {m_mf0_rmse[0]} \u00b1 {m_mf0_rmse[1]}")
     #print(f"Pitch: {m_pitches[0]} \u00b1 {m_pitches[1]}")
     #print(f"Periodicity: {m_periodicities[0]} \u00b1 {m_periodicities[1]}\n")
