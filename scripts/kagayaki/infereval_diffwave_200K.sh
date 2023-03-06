@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #PBS -q GPU-1
-#PBS -N infer_diffwave
+#PBS -N infereval_diffwave
 #PBS -l select=1:ngpus=1
 #PBS -j oe
 #PBS -M s2212015@jaist.ac.jp -m be
