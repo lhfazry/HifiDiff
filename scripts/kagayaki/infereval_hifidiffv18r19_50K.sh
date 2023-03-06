@@ -12,7 +12,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python inference.py \
     checkpoints/hifidiffv18r19 \
     /home/s2212015/LJSpeech-1.1 \
     filelists/all_test_kagayaki.txt \
-    --step 200000 \
+    --step 50000 \
     --fast_iter 50 >> logs/inferences/hifidiffv18r19.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python tools/evaluate2.py \
