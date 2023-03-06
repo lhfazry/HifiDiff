@@ -1,0 +1,93 @@
+
+Ind001_F_Bli
+Ind002_M_Bli
+Ind001_F_Btk
+Ind002_M_Btk
+Ind001_F_Jaw
+Ind002_M_Jaw
+Ind001_F_Snd
+Ind002_M_Snd
+afr_
+arf_
+sso_
+tsn_
+xho_
+
+
+python run_predict.py --mode predict_dir --prefix Ind001_F_Bli \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_Ind001_F_Bli
+
+python run_predict.py --mode predict_dir --prefix Ind002_M_Bli \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_Ind002_M_Bli
+
+python run_predict.py --mode predict_dir --prefix Ind001_F_Btk \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_Ind001_F_Btk
+
+python run_predict.py --mode predict_dir --prefix Ind002_M_Btk \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_Ind002_M_Btk
+
+python run_predict.py --mode predict_dir --prefix Ind001_F_Jaw \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_Ind001_F_Jaw
+
+python run_predict.py --mode predict_dir --prefix Ind002_M_Jaw \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_Ind002_M_Jaw
+
+python run_predict.py --mode predict_dir --prefix Ind001_F_Snd \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_Ind001_F_Snd
+
+python run_predict.py --mode predict_dir --prefix Ind002_M_Snd \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_Ind002_M_Snd
+
+python run_predict.py --mode predict_dir --prefix afr_ \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_afr
+
+python run_predict.py --mode predict_dir --prefix arf_ \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_arf
+
+python run_predict.py --mode predict_dir --prefix sso_ \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_sso
+
+python run_predict.py --mode predict_dir --prefix tsn_ \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_tsn
+
+python run_predict.py --mode predict_dir --prefix xho_ \
+--pretrained_model weights/nisqa_tts.tar \
+--data_dir ../HifiDiff/checkpoints/sample_slow/hifidiffv18r18_step50000/ \
+--num_workers 0 --bs 10 \
+--output_dir results --filename hifidiffv18r18_step50000_xho
