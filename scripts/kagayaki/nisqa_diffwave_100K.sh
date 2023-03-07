@@ -15,7 +15,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_Ind001_F_Bli >> logs/diffwave_step100000_Ind001_F_Bli.log
+--filename diffwave_step100000_Ind001_F_Bli >> logs/diffwave_step100000_Ind001_F_Bli.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix Ind002_M_Bli \
@@ -23,7 +23,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_Ind002_M_Bli >> logs/diffwave_step100000_Ind002_M_Bli.log
+--filename diffwave_step100000_Ind002_M_Bli >> logs/diffwave_step100000_Ind002_M_Bli.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix Ind001_F_Btk \
@@ -31,7 +31,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_Ind001_F_Btk >> logs/diffwave_step100000_Ind001_F_Btk.log
+--filename diffwave_step100000_Ind001_F_Btk >> logs/diffwave_step100000_Ind001_F_Btk.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix Ind002_M_Btk \
@@ -39,7 +39,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_Ind002_M_Btk >> logs/diffwave_step100000_Ind002_M_Btk.log
+--filename diffwave_step100000_Ind002_M_Btk >> logs/diffwave_step100000_Ind002_M_Btk.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix Ind001_F_Jaw \
@@ -47,7 +47,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_Ind001_F_Jaw >> logs/diffwave_step100000_Ind001_F_Jaw.log
+--filename diffwave_step100000_Ind001_F_Jaw >> logs/diffwave_step100000_Ind001_F_Jaw.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix Ind002_M_Jaw \
@@ -55,7 +55,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_Ind002_M_Jaw >> logs/diffwave_step100000_Ind002_M_Jaw.log
+--filename diffwave_step100000_Ind002_M_Jaw >> logs/diffwave_step100000_Ind002_M_Jaw.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix Ind001_F_Snd \
@@ -63,7 +63,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_Ind001_F_Snd >> logs/diffwave_step100000_Ind001_F_Snd.log
+--filename diffwave_step100000_Ind001_F_Snd >> logs/diffwave_step100000_Ind001_F_Snd.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix afr_ \
@@ -71,7 +71,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_afr >> logs/diffwave_step100000_afr.log
+--filename diffwave_step100000_afr >> logs/diffwave_step100000_afr.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix arf_ \
@@ -79,7 +79,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_arf >> logs/diffwave_step100000_arf.log
+--filename diffwave_step100000_arf >> logs/diffwave_step100000_arf.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix sso_ \
@@ -87,7 +87,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_sso >> logs/diffwave_step100000_sso.log
+--filename diffwave_step100000_sso >> logs/diffwave_step100000_sso.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix tsn_ \
@@ -95,7 +95,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_tsn >> logs/diffwave_step100000_tsn.log
+--filename diffwave_step100000_tsn >> logs/diffwave_step100000_tsn.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix xho_ \
@@ -103,7 +103,7 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_xho >> logs/diffwave_step100000_xho.log
+--filename diffwave_step100000_xho >> logs/diffwave_step100000_xho.log 2>&1
 
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --mode predict_dir --prefix xho_ \
@@ -111,4 +111,4 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python run_predict.py \
 --data_dir ../HifiDiff/checkpoints/sample_slow/diffwave_step100000/ \
 --num_workers 0 --bs 10 \
 --output_dir results \
---filename diffwave_step100000_xho >> logs/diffwave_step100000_xho.log
+--filename diffwave_step100000_xho >> logs/diffwave_step100000_xho.log 2>&1
