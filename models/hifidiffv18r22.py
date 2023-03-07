@@ -211,8 +211,8 @@ class HifiDiffV18R22(nn.Module):
         if self.condition_prior_global:
             self.n_cond = 1
 
-        self.snake1 = Snake(2)
-        self.snake2 = Snake(params.residual_channels)
+        #self.snake1 = Snake(2)
+        self.snake = Snake(params.residual_channels)
 
         self.clone_projection = Conv1d(1, 2, 1)
         self.input_projection = Conv1d(1, params.residual_channels, 1)
@@ -248,11 +248,11 @@ class HifiDiffV18R22(nn.Module):
         #    audio = audio.unsqueeze(1).repeat(1, 2, 1) # (b, 2, t)
         audio = audio.unsqueeze(1) # b, 1, t
         audio = self.clone_projection(audio) # b, 2, t
-        audio = self.snake1(audio)
+        audio = F.relu(audio)
 
         x = rearrange(audio, "b (d c1) t -> (b d) c1 t", c1=1)
         x = self.input_projection(x) # (b d), c, t
-        x = self.snake2(x)
+        #x = F.relu(x)
 
         diffusion_step = self.diffusion_embedding(diffusion_step) # b, t, 512
         spectrogram = self.spectrogram_upsampler(spectrogram) # b, 80, t periodic
@@ -263,8 +263,8 @@ class HifiDiffV18R22(nn.Module):
 
         x = rearrange(x, "(b d) c t -> b d c t", d=2)
         hf_x, lf_x = torch.chunk(x, 2, dim=1) # hf_x => b 1 c t, lf_x => b 1 c t, 
-        hf_x = hf_x.squeeze() # b c t
-        lf_x = lf_x.squeeze() # b c t
+        hf_x = F.relu(hf_x.squeeze()) # b c t
+        lf_x = self.snake(lf_x.squeeze()) # b c t
 
         hf_skips, lf_skips = [], []
         for lf_res, hf_res in zip(self.hf_residual_layers, self.lf_residual_layers):
