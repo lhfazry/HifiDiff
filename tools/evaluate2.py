@@ -43,15 +43,16 @@ def main(args):
         owav, _ = librosa.load(os.path.join(args.odir, Path(fname).name), sr=sr, mono=True)
         owav = owav[:swav.shape[0]]
 
-        mcd, penalty, _ = get_metrics_wavs(Path(fname), 
-            Path(os.path.join(args.odir, Path(fname).name)))
+        #mcd, penalty, _ = get_metrics_wavs(Path(fname), 
+        #    Path(os.path.join(args.odir, Path(fname).name)))
 
         stft, _ = mstft_loss(torch.from_numpy(swav).unsqueeze(0), torch.from_numpy(owav).unsqueeze(0))
         s_mel = librosa.feature.melspectrogram(y=swav, sr=sr, n_fft=1024, hop_length=256, 
                                                win_length=512, n_mels = 80)
-        o_mel = librosa.feature.melspectrogram(y=owav, sr=sr, n_fft=1024, hop_length=256, win_length=512, 
-                                               n_mels = 80)
+        o_mel = librosa.feature.melspectrogram(y=owav, sr=sr, n_fft=1024, hop_length=256, 
+                                               win_length=512, n_mels = 80)
         
+        mcd, _ = get_metrics_mels(s_mel, o_mel)
         s_f0, _, _ = librosa.pyin(y=swav, frame_length=1024, win_length=512, hop_length=256, fill_na=None,
                                   fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
         o_f0, _, _ = librosa.pyin(y=owav, frame_length=1024, win_length=512, hop_length=256, fill_na=None,
@@ -59,7 +60,7 @@ def main(args):
         
         mcds.append(mcd)
         mstft.append(stft.squeeze().numpy())
-        mls_mae.append(np.mean(abs(s_mel - o_mel)))
+        mls_mae.append(np.mean(np.absolute(s_mel - o_mel)))
         mf0_rmse.append(np.sqrt(np.mean((s_f0 - o_f0) ** 2)))
 
         '''
