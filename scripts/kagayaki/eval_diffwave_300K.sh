@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#PBS -q GPU-1A
+#PBS -q GPU-1
 #PBS -N eval_diffwave
 #PBS -l select=1:ngpus=1
 #PBS -j oe
