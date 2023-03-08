@@ -46,7 +46,7 @@ def main(args):
         #mcd, penalty, _ = get_metrics_wavs(Path(fname), 
         #    Path(os.path.join(args.odir, Path(fname).name)))
 
-        stft, _ = mstft_loss(torch.from_numpy(swav).unsqueeze(0), torch.from_numpy(owav).unsqueeze(0))
+        #stft, _ = mstft_loss(torch.from_numpy(swav).unsqueeze(0), torch.from_numpy(owav).unsqueeze(0))
         s_mel = librosa.feature.melspectrogram(y=swav, sr=sr, n_fft=1024, hop_length=256, 
                                                win_length=512, n_mels = 80)
         o_mel = librosa.feature.melspectrogram(y=owav, sr=sr, n_fft=1024, hop_length=256, 
@@ -59,7 +59,7 @@ def main(args):
                                   fmin=librosa.note_to_hz('C2'), fmax=librosa.note_to_hz('C7'))
         
         mcds.append(mcd)
-        mstft.append(stft.squeeze().numpy())
+        #mstft.append(stft.squeeze().numpy())
         mls_mae.append(np.mean(np.absolute(s_mel - o_mel)))
         mf0_rmse.append(np.sqrt(np.mean((s_f0 - o_f0) ** 2)))
 
