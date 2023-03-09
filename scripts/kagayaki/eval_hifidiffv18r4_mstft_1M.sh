@@ -77,3 +77,8 @@ singularity exec -i --nv ~/pytorch_22.02-py3.sif python tools/evaluate2.py \
     --prefix xho_ \
     --sdir checkpoints/sample_slow/hifidiffv18r4_mstft_step1000000 \
     --odir /home/s2212015/datasets/xh_za/za/xho/wavs/ >> logs/evaluation/hifidiffv18r4_mstft_step1000000.log 2>&1
+
+singularity exec -i --nv ~/pytorch_22.02-py3.sif python tools/evaluate2.py \
+    --prefix fr_ \
+    --sdir checkpoints/sample_slow/hifidiffv18r4_mstft_step1000000 \
+    --odir /home/s2212015/datasets/xh_za/za/xho/wavs/ >> logs/evaluation/hifidiffv18r4_mstft_step1000000.log 2>&1
