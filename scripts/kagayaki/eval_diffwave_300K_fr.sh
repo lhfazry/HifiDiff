@@ -8,6 +8,7 @@
 
 module load singularity
 cd ~/HifiDiff
+
 singularity exec -i --nv ~/pytorch_22.02-py3.sif python tools/evaluate2.py \
     --prefix fr_ \
     --sdir checkpoints/sample_slow/diffwave_step300000 \
