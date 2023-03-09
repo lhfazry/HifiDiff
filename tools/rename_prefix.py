@@ -10,7 +10,7 @@ def rename_prefix(args):
     
     for f in files:
         pf = Path(f)
-        new_fname = pf.name.replce(args.old_prefix, args.new_prefix)
+        new_fname = pf.name.replace(args.old_prefix, args.new_prefix)
         os.rename(f, os.path.join(pf.parent, new_fname))
 
 if __name__ == '__main__':
